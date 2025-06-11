@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Hash;
 use App\Models\EmailVerificationToken;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\EmailVerificationMail;
+use App\Rules\PhoneNumber;
 
 class AuthController extends Controller
 {
@@ -59,12 +60,7 @@ class AuthController extends Controller
                 'required',
                 'string',
                 'unique:users',
-                function ($attribute, $value, $fail) use ($request) {
-                    $validation = $this->validatePhoneForCountry($value, $request->country);
-                    if (!$validation['valid']) {
-                        $fail($validation['message']);
-                    }
-                }
+                new PhoneNumber('country')
             ]
         ]);
 
@@ -86,17 +82,25 @@ class AuthController extends Controller
         $phoneUtil = \libphonenumber\PhoneNumberUtil::getInstance();
 
         try {
+            // Parse avec le pays comme référence
             $numberProto = $phoneUtil->parse($phone, $countryCode);
+
+            // Valider le numéro
             $isValid = $phoneUtil->isValidNumber($numberProto);
 
+            // Vérifier que le pays correspond
+            $phoneRegion = $phoneUtil->getRegionCodeForNumber($numberProto);
+            $regionMatches = strtoupper($phoneRegion) === strtoupper($countryCode);
+
             return [
-                'valid' => $isValid,
-                'message' => $isValid ? '' : 'Numéro de téléphone invalide pour ce pays'
+                'valid' => $isValid && $regionMatches,
+                'message' => !$isValid ? 'Numéro de téléphone invalide'
+                    : (!$regionMatches ? 'Le numéro ne correspond pas au pays sélectionné' : '')
             ];
         } catch (\Exception $e) {
             return [
                 'valid' => false,
-                'message' => 'Format de numéro invalide'
+                'message' => 'Format de numéro invalide: ' . $e->getMessage()
             ];
         }
     }
@@ -104,8 +108,13 @@ class AuthController extends Controller
     private function formatPhoneNumber($phone, $countryCode)
     {
         $phoneUtil = \libphonenumber\PhoneNumberUtil::getInstance();
-        $numberProto = $phoneUtil->parse($phone, $countryCode);
-        return $phoneUtil->format($numberProto, \libphonenumber\PhoneNumberFormat::E164);
+
+        try {
+            $numberProto = $phoneUtil->parse($phone, $countryCode);
+            return $phoneUtil->format($numberProto, \libphonenumber\PhoneNumberFormat::E164);
+        } catch (\Exception $e) {
+            return $phone;
+        }
     }
 
     private function sendVerificationEmail(User $user)

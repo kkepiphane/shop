@@ -271,7 +271,7 @@
         function checkPhoneUniqueness(fullPhoneNumber) {
             if (!fullPhoneNumber || fullPhoneNumber.length < 5) return;
 
-            fetch('/api/check-phone', {
+            fetch('/check-phone', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -291,16 +291,13 @@
                 });
         }
 
-        // Remplacer phoneRules par cette fonction dynamique
-        async function getPhoneNumberRules(countryCode) {
+        function getPhoneNumberRules(countryCode) {
             try {
-                // Charger les métadonnées du pays
-                const metadata = await libphonenumber.getMetadata().metadata.countries[countryCode];
-
-                if (metadata) {
+                const phoneNumber = libphonenumber.parsePhoneNumber('+' + Math.random().toString().slice(2, 15), countryCode);
+                if (phoneNumber) {
                     return {
-                        min: metadata.formats[0]?.pattern?.replace(/[^\d]/g, '').length || 6,
-                        max: metadata.formats[0]?.possibleLength?.national[0] || 15
+                        min: phoneNumber.countryCallingCode.length + 1,
+                        max: phoneNumber.countryCallingCode.length + 15
                     };
                 }
                 return {
@@ -312,6 +309,31 @@
                     min: 6,
                     max: 15
                 };
+            }
+        }
+
+        // Validation simplifiée
+        function validatePhoneLength() {
+            const countryCode = document.getElementById('country').value;
+            const phoneInput = document.getElementById('phone');
+            const rules = getPhoneNumberRules(countryCode);
+
+            // Nettoyer le numéro
+            const cleanedValue = phoneInput.value.replace(/\D/g, '');
+
+            // Bloquer la saisie si dépasse le max
+            if (cleanedValue.length > rules.max) {
+                phoneInput.value = cleanedValue.slice(0, rules.max);
+                return;
+            }
+
+            // Validation visuelle
+            const phoneError = document.getElementById('phoneError');
+            if (cleanedValue.length < rules.min) {
+                phoneError.style.display = 'block';
+                phoneError.textContent = `Le numéro doit contenir au moins ${rules.min} chiffres`;
+            } else {
+                phoneError.style.display = 'none';
             }
         }
 
@@ -340,9 +362,7 @@
         }
 
         // Initialiser libphonenumber
-        document.addEventListener('DOMContentLoaded', async function() {
-            await libphonenumber.load();
-
+        document.addEventListener('DOMContentLoaded', function() {
             // Écouteurs d'événements
             document.getElementById('country').addEventListener('change', validatePhoneLength);
             document.getElementById('phone').addEventListener('input', validatePhoneLength);
