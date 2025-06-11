@@ -20,9 +20,6 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-// Route::get('/', function () {
-//     return view('welcome');
-// });
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
@@ -30,7 +27,7 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 Route::get('/register', [AuthController::class, 'showRegistrationForm'])->name('register');
-Route::post('/register-form', [AuthController::class, 'register']);
+Route::post('/register', [AuthController::class, 'register']);
 Route::post('/check-phone', [AuthController::class, 'checkPhone']);
 Route::get('/verify-email/{token}', [AuthController::class, 'verifyEmail'])->name('verify.email');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
@@ -38,6 +35,8 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::get('/shop', [ShopController::class, 'index'])->name('shop');
 Route::get('/contact', [ContactController::class, 'index'])->name('contact');
 Route::get('/cart', [CartController::class, 'index'])->name('cart');
+Route::get('/email/verify/{id}/{token}', [AuthController::class, 'verifyEmail'])
+    ->name('verification.verify');
 
 // Produits
 Route::get('/products', [ProductController::class, 'index'])->name('products.index')->middleware('auth', 'verified');

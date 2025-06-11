@@ -29,7 +29,7 @@ class AuthController extends Controller
                 auth()->logout();
                 return back()->with('error', 'Veuillez vérifier votre email avant de vous connecter.');
             }
-            return redirect()->intended('/products');
+            return redirect()->intended('/home');
         }
 
         return back()->withErrors(['email' => 'Identifiants incorrects']);
@@ -54,8 +54,9 @@ class AuthController extends Controller
         $validated = $request->validate([
             'full_name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8|confirmed',
+            'password' => 'required|string|min:8',
             'country' => 'required|string|size:2',
+            'phone_prefix' => 'required|string',
             'phone_number' => [
                 'required',
                 'string',
@@ -63,48 +64,44 @@ class AuthController extends Controller
                 new PhoneNumber('country')
             ]
         ]);
+        $fullPhoneNumber = $validated['phone_prefix'] . $validated['phone_number'];
 
         $user = User::create([
             'full_name' => $validated['full_name'],
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
             'country' => $validated['country'],
-            'phone_number' => $this->formatPhoneNumber($validated['phone_number'], $validated['country'])
+            'phone_number' => $fullPhoneNumber
         ]);
 
         $this->sendVerificationEmail($user);
 
-        return redirect()->route('login')->with('success', 'Compte créé. Veuillez vérifier votre email.');
+        return response()->json([
+            'success' => true,
+            'message' => 'Un email de confirmation a été envoyé à votre adresse. Veuillez vérifier votre boîte mail.'
+        ]);
     }
 
-    private function validatePhoneForCountry($phone, $countryCode)
+    public function verifyEmail($id, $token)
     {
-        $phoneUtil = \libphonenumber\PhoneNumberUtil::getInstance();
+        $user = User::findOrFail($id);
 
-        try {
-            // Parse avec le pays comme référence
-            $numberProto = $phoneUtil->parse($phone, $countryCode);
+        $verificationToken = EmailVerificationToken::where('user_id', $user->id)
+            ->where('token', $token)
+            ->where('expires_at', '>', now())
+            ->first();
 
-            // Valider le numéro
-            $isValid = $phoneUtil->isValidNumber($numberProto);
-
-            // Vérifier que le pays correspond
-            $phoneRegion = $phoneUtil->getRegionCodeForNumber($numberProto);
-            $regionMatches = strtoupper($phoneRegion) === strtoupper($countryCode);
-
-            return [
-                'valid' => $isValid && $regionMatches,
-                'message' => !$isValid ? 'Numéro de téléphone invalide'
-                    : (!$regionMatches ? 'Le numéro ne correspond pas au pays sélectionné' : '')
-            ];
-        } catch (\Exception $e) {
-            return [
-                'valid' => false,
-                'message' => 'Format de numéro invalide: ' . $e->getMessage()
-            ];
+        if (!$verificationToken) {
+            return redirect()->route('login')->with('error', 'Lien de vérification invalide ou expiré.');
         }
-    }
 
+        $user->email_verified_at = now();
+        $user->save();
+
+        $verificationToken->delete();
+
+        return redirect()->route('login')->with('success', 'Votre email a été vérifié avec succès. Vous pouvez maintenant vous connecter.');
+    }
     private function formatPhoneNumber($phone, $countryCode)
     {
         $phoneUtil = \libphonenumber\PhoneNumberUtil::getInstance();
@@ -130,20 +127,6 @@ class AuthController extends Controller
         Mail::to($user->email)->send(new EmailVerificationMail($user, $token));
     }
 
-    public function verifyEmail($token)
-    {
-        $verification = EmailVerificationToken::where('token', $token)
-            ->where('expires_at', '>', now())
-            ->firstOrFail();
-
-        $user = $verification->user;
-        $user->email_verified_at = now();
-        $user->save();
-
-        $verification->delete();
-
-        return redirect()->route('login')->with('success', 'Email vérifié. Vous pouvez maintenant vous connecter.');
-    }
 
     public function logout()
     {

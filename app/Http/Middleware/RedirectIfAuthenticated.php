@@ -15,13 +15,19 @@ class RedirectIfAuthenticated
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
-    public function handle(Request $request, Closure $next, string ...$guards): Response
+    public function handle(Request $request, Closure $next, ...$guards)
     {
         $guards = empty($guards) ? [null] : $guards;
 
         foreach ($guards as $guard) {
             if (Auth::guard($guard)->check()) {
-                return redirect(RouteServiceProvider::HOME);
+                if ($request->user()->hasVerifiedEmail()) {
+                    return redirect(RouteServiceProvider::HOME);
+                } else {
+                    Auth::logout();
+                    return redirect()->route('login')
+                        ->with('error', 'Vous devez vérifier votre email avant de pouvoir vous connecter.');
+                }
             }
         }
 

@@ -19,6 +19,7 @@ class PhoneNumber implements Rule
     public function passes($attribute, $value)
     {
         $countryCode = request($this->countryField);
+        $phonePrefix = request('phone_prefix'); 
 
         if (empty($countryCode)) {
             $this->message = 'Le pays est requis pour valider le numéro';
@@ -28,7 +29,10 @@ class PhoneNumber implements Rule
         $phoneUtil = PhoneNumberUtil::getInstance();
 
         try {
-            $numberProto = $phoneUtil->parse($value, $countryCode);
+            // Combine le préfixe et le numéro
+            $fullNumber = $phonePrefix . $value;
+            $numberProto = $phoneUtil->parse($fullNumber, $countryCode);
+
             $isValid = $phoneUtil->isValidNumber($numberProto);
             $regionMatches = $phoneUtil->getRegionCodeForNumber($numberProto) === $countryCode;
 
@@ -40,7 +44,7 @@ class PhoneNumber implements Rule
 
             return $isValid && $regionMatches;
         } catch (NumberParseException $e) {
-            $this->message = 'Format de numéro invalide';
+            $this->message = 'Format de numéro invalide: ' . $e->getMessage();
             return false;
         }
     }

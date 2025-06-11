@@ -65,15 +65,11 @@
 
             // Si le formulaire est valide, envoyer les données au serveur
             if (isValid) {
-                // Ici, vous feriez une requête AJAX vers votre backend
-                // pour vérifier les identifiants
                 console.log('Envoi des données au serveur:', {
                     email,
                     password
                 });
 
-                // Exemple de réponse du serveur (à remplacer par une vraie requête)
-                // simulateServerResponse(email, password);
             }
         });
 

@@ -77,7 +77,7 @@
             <a href="login.html">Déjà un compte ? Se connecter</a>
         </div>
     </div>
-    <!-- Ajoutez dans votre head -->
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/libphonenumber-js/1.10.6/libphonenumber-js.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -114,19 +114,34 @@
                         const flagUrl = selectedOption.dataset.flag;
                         const phoneCode = selectedOption.dataset.phoneCode;
 
-                        // Mettre à jour le drapeau dans le select
                         selectedFlag.innerHTML = `<img src="${flagUrl}" alt="Flag" class="flag-icon">`;
 
-                        // Mettre à jour le drapeau et le préfixe téléphonique
                         phonePrefixFlag.innerHTML = `<img src="${flagUrl}" alt="Flag" class="flag-icon">`;
                         phonePrefix.value = phoneCode;
-
-                        // Mettre à jour l'exemple de format
-                        updatePhoneFormatHint(selectedOption.value);
                     });
 
                     // Détection automatique du pays
                     detectUserCountry();
+
+                    // Gestion de la soumission du formulaire
+                    document.getElementById('registerForm').addEventListener('submit', function(e) {
+                        e.preventDefault();
+                        if (validateForm()) {
+                            // Si la validation réussit, vous pouvez envoyer le formulaire
+                            submitForm();
+                        }
+                    });
+
+                    // Validation du numéro de téléphone en temps réel
+                    document.getElementById('phone').addEventListener('input', function() {
+                        validatePhoneNumber();
+                    });
+
+                    // Lorsque le pays change, valider à nouveau le numéro
+                    document.getElementById('country').addEventListener('change', function() {
+                        validatePhoneNumber();
+                        updatePhoneFormatHint();
+                    });
                 })
                 .catch(error => {
                     console.error('Erreur:', error);
@@ -134,19 +149,7 @@
                 });
         });
 
-        // Fonction pour mettre à jour l'exemple de format
-        function updatePhoneFormatHint(countryCode) {
-            const phoneFormatHint = document.getElementById('phoneFormatHint');
-            const examples = {
-                'FR': 'Ex: 612345678 (9 chiffres)',
-                'BE': 'Ex: 471234567 (9 chiffres)',
-                'US': 'Ex: 2015550123 (10 chiffres)',
-                // Ajouter d'autres pays au besoin
-            };
-            phoneFormatHint.textContent = examples[countryCode] || 'Veuillez entrer un numéro valide pour ce pays';
-        }
 
-        // Modifier la fonction detectUserCountry pour mettre à jour les drapeaux
         function detectUserCountry() {
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
@@ -172,22 +175,21 @@
             }
         }
 
-        // Modifier loadBackupCountries pour inclure les drapeaux
         function loadBackupCountries() {
             const backupCountries = [{
-                    cca2: 'FR',
+                    cca2: 'TG',
                     name: {
-                        common: 'France'
+                        common: 'Togo'
                     },
                     idd: {
-                        root: '+3',
-                        suffixes: ['3']
+                        root: '+228',
+                        suffixes: ['228']
                     },
                     flags: {
-                        svg: 'https://flagcdn.com/fr.svg'
+                        svg: 'https://flagcdn.com/tg.svg'
                     }
                 },
-                // Ajouter d'autres pays de la même manière
+
             ];
 
             const countrySelect = document.getElementById('country');
@@ -201,172 +203,204 @@
             });
         }
 
-        // Dans votre script existant
-        function validatePhoneNumber(phone, countryCode) {
-            const cleanedPhone = phone.replace(/[-\s]/g, '');
-            const rules = {
-                'FR': {
-                    pattern: /^(0[1-9])(\d{2}){4}$/,
-                    min: 10, // 0 + 9 chiffres
-                    max: 10
-                },
-                'US': {
-                    pattern: /^[2-9]\d{9}$/,
-                    min: 10,
-                    max: 10
-                },
-                'BE': {
-                    pattern: /^(0[1-9])(\d{3}){2}$/,
-                    min: 10,
-                    max: 10
-                }
-                // Ajouter d'autres pays
-            };
+        function validateForm() {
+            let isValid = true;
 
-            const rule = rules[countryCode] || {
-                pattern: /^\d+$/,
-                min: 6,
-                max: 15
-            };
+            // Valider le nom complet
+            const fullname = document.getElementById('fullname').value.trim();
+            if (!fullname) {
+                document.getElementById('fullnameError').style.display = 'block';
+                isValid = false;
+            } else {
+                document.getElementById('fullnameError').style.display = 'none';
+            }
 
-            return {
-                isValid: rule.pattern.test(cleanedPhone),
-                isTooShort: cleanedPhone.length < rule.min,
-                isTooLong: cleanedPhone.length > rule.max,
-                expectedLength: rule.min
-            };
+            // Valider l'email
+            const email = document.getElementById('email').value.trim();
+            if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                document.getElementById('emailError').textContent = 'Veuillez entrer une adresse email valide';
+                document.getElementById('emailError').style.display = 'block';
+                isValid = false;
+            } else {
+                document.getElementById('emailError').style.display = 'none';
+            }
+
+            // Valider le pays
+            const country = document.getElementById('country').value;
+            if (!country) {
+                document.getElementById('countryError').style.display = 'block';
+                isValid = false;
+            } else {
+                document.getElementById('countryError').style.display = 'none';
+            }
+
+            // Valider le numéro de téléphone
+            if (!validatePhoneNumber()) {
+                isValid = false;
+            }
+
+            // Valider le mot de passe
+            const password = document.getElementById('password').value;
+            if (password.length < 8) {
+                document.getElementById('passwordError').style.display = 'block';
+                isValid = false;
+            } else {
+                document.getElementById('passwordError').style.display = 'none';
+            }
+
+            // Valider la confirmation du mot de passe
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            if (password !== confirmPassword) {
+                document.getElementById('confirmPasswordError').style.display = 'block';
+                isValid = false;
+            } else {
+                document.getElementById('confirmPasswordError').style.display = 'none';
+            }
+
+            return isValid;
         }
 
-        // Écouteur d'événement pour la validation en temps réel
-        document.getElementById('phone').addEventListener('input', function() {
+        function validatePhoneNumber() {
+            const phoneNumberInput = document.getElementById('phone').value.trim();
             const countryCode = document.getElementById('country').value;
-            const phone = this.value;
+            const phonePrefix = document.getElementById('phonePrefix').value.trim();
             const phoneError = document.getElementById('phoneError');
 
-            if (!countryCode) {
+            if (!phoneNumberInput) {
+                phoneError.textContent = 'Veuillez entrer un numéro de téléphone';
                 phoneError.style.display = 'block';
+                return false;
+            }
+
+            if (!countryCode) {
                 phoneError.textContent = 'Veuillez d\'abord sélectionner un pays';
+                phoneError.style.display = 'block';
+                return false;
+            }
+
+            // Combiner le préfixe et le numéro saisi
+            const fullPhoneNumber = phonePrefix + phoneNumberInput;
+
+            try {
+                const phoneNumber = libphonenumber.parsePhoneNumber(fullPhoneNumber, countryCode);
+
+                if (phoneNumber && phoneNumber.isValid()) {
+                    // Afficher le numéro formaté (sans répéter le préfixe)
+                    document.getElementById('phone').value = phoneNumber.nationalNumber;
+                    phoneError.style.display = 'none';
+                    return true;
+                } else {
+                    phoneError.textContent = 'Numéro de téléphone invalide pour ce pays';
+                    phoneError.style.display = 'block';
+                    return false;
+                }
+            } catch (error) {
+                phoneError.textContent = 'Format de numéro invalide';
+                phoneError.style.display = 'block';
+                return false;
+            }
+        }
+
+        const phoneFormats = {
+            'TG': {
+                pattern: '[279]\\d{7}',
+                format: '(\\d{2})(\\d{2})(\\d{2})(\\d{2})',
+                example: '90 12 34 56',
+                length: 8
+            },
+            'BJ': {
+                pattern: '(?:[25689]\\d|40)\\d{6}',
+                format: '(\\d{2})(\\d{2})(\\d{2})(\\d{2})',
+                example: '96 12 34 56',
+                length: 8
+            },
+            'CM': {
+                pattern: '[26]\\d{8}|88\\d{6,7}',
+                formats: [{
+                        pattern: '88\\d{6}',
+                        format: '(\\d{2})(\\d{2})(\\d{2})(\\d{2})',
+                        example: '88 12 34 56',
+                        length: 8
+                    },
+                    {
+                        pattern: '[26]\\d{8}',
+                        format: '(\\d)(\\d{2})(\\d{2})(\\d{2})(\\d{2})',
+                        example: '6 12 34 56 78',
+                        length: 9
+                    }
+                ]
+            },
+            'CN': {
+                pattern: '1[127]\\d{8,9}|2\\d{9}(?:\\d{2})?|[12]\\d{6,7}|86\\d{6}|(?:1[03-689]\\d|6)\\d{7,9}|(?:[3-579]\\d|8[0-57-9])\\d{6,9}',
+                format: '(\\d{3})(\\d{4})(\\d{4})',
+                example: '131 2345 6789',
+                length: 11
+            }
+            // Vous pouvez ajouter tous les autres pays ici en suivant le même format
+        };
+
+        function updatePhoneFormatHint() {
+            const countryCode = document.getElementById('country').value;
+            const hintElement = document.getElementById('phoneFormatHint');
+
+            if (!countryCode) {
+                hintElement.textContent = '';
                 return;
             }
 
-            const validation = validatePhoneNumber(phone, countryCode);
+            // Exemples de formats nationaux (sans l'indicatif)
+            const examples = {
+                'FR': 'ex: 6 12 34 56 78',
+                'US': 'ex: (201) 555-0123',
+                'GB': 'ex: 7400 123456',
+                'DE': 'ex: 171 1234567',
+                'TG': 'ex: 90 12 34 56',
+                'BE': 'ex: 470 12 34 56',
+                // Ajoutez d'autres pays selon vos besoins
+            };
 
-            if (validation.isTooShort) {
-                phoneError.style.display = 'block';
-                phoneError.textContent = `Trop court. Le numéro doit avoir ${validation.expectedLength} chiffres.`;
-            } else if (validation.isTooLong) {
-                phoneError.style.display = 'block';
-                phoneError.textContent = 'Trop long. Vérifiez le format.';
-            } else if (!validation.isValid) {
-                phoneError.style.display = 'block';
-                phoneError.textContent = 'Format invalide pour ce pays.';
-            } else {
-                phoneError.style.display = 'none';
-                // Vérifier l'unicité via API
-                checkPhoneUniqueness(phonePrefix.value + phone);
-            }
-        });
+            // const format = phoneFormats[countryCode];
+            // hintElement.textContent = `le numéro de téléphone comporte: ${format.example} (${format.length} chiffres)`;
+        }
 
-        // Fonction améliorée pour vérifier l'unicité
-        function checkPhoneUniqueness(fullPhoneNumber) {
-            if (!fullPhoneNumber || fullPhoneNumber.length < 5) return;
+        function submitForm() {
+            if (!validateForm()) return;
 
-            fetch('/check-phone', {
+            const formData = {
+                full_name: document.getElementById('fullname').value,
+                email: document.getElementById('email').value,
+                country: document.getElementById('country').value,
+                phone_number: document.getElementById('phone').value,
+                phone_prefix: document.getElementById('phonePrefix').value,
+                password: document.getElementById('password').value,
+
+            };
+
+            country = document.getElementById('country').value,
+                console.log(country)
+
+            fetch('/register', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json'
                     },
-                    body: JSON.stringify({
-                        phone: fullPhoneNumber
-                    })
+                    body: JSON.stringify(formData)
                 })
                 .then(response => response.json())
                 .then(data => {
-                    const phoneError = document.getElementById('phoneError');
-                    if (!data.available) {
-                        phoneError.style.display = 'block';
-                        phoneError.textContent = 'Ce numéro est déjà utilisé';
+                    if (data.success) {
+                        document.getElementById('registerForm').style.display = 'none';
+                        document.getElementById('successMessage').style.display = 'block';
+                    } else {
+                        console.error(data.errors);
                     }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
                 });
         }
-
-        function getPhoneNumberRules(countryCode) {
-            try {
-                const phoneNumber = libphonenumber.parsePhoneNumber('+' + Math.random().toString().slice(2, 15), countryCode);
-                if (phoneNumber) {
-                    return {
-                        min: phoneNumber.countryCallingCode.length + 1,
-                        max: phoneNumber.countryCallingCode.length + 15
-                    };
-                }
-                return {
-                    min: 6,
-                    max: 15
-                };
-            } catch {
-                return {
-                    min: 6,
-                    max: 15
-                };
-            }
-        }
-
-        // Validation simplifiée
-        function validatePhoneLength() {
-            const countryCode = document.getElementById('country').value;
-            const phoneInput = document.getElementById('phone');
-            const rules = getPhoneNumberRules(countryCode);
-
-            // Nettoyer le numéro
-            const cleanedValue = phoneInput.value.replace(/\D/g, '');
-
-            // Bloquer la saisie si dépasse le max
-            if (cleanedValue.length > rules.max) {
-                phoneInput.value = cleanedValue.slice(0, rules.max);
-                return;
-            }
-
-            // Validation visuelle
-            const phoneError = document.getElementById('phoneError');
-            if (cleanedValue.length < rules.min) {
-                phoneError.style.display = 'block';
-                phoneError.textContent = `Le numéro doit contenir au moins ${rules.min} chiffres`;
-            } else {
-                phoneError.style.display = 'none';
-            }
-        }
-
-        // Modifier validatePhoneLength pour être asynchrone
-        async function validatePhoneLength() {
-            const countryCode = document.getElementById('country').value;
-            const phoneInput = document.getElementById('phone');
-            const rules = await getPhoneNumberRules(countryCode);
-
-            // Bloquer la saisie au max
-            const cleanedValue = phoneInput.value.replace(/\D/g, '');
-            if (cleanedValue.length > rules.max) {
-                phoneInput.value = cleanedValue.slice(0, rules.max);
-            }
-
-            // Mettre à jour l'affichage
-            document.getElementById('maxLength').textContent = rules.max;
-            document.getElementById('currentLength').textContent =
-                Math.min(cleanedValue.length, rules.max);
-
-            // Style dynamique
-            const lengthHint = document.querySelector('.phone-length-hint');
-            lengthHint.className = 'phone-length-hint' +
-                (cleanedValue.length < rules.min ? ' warning' : '') +
-                (cleanedValue.length > rules.max ? ' error' : '');
-        }
-
-        // Initialiser libphonenumber
-        document.addEventListener('DOMContentLoaded', function() {
-            // Écouteurs d'événements
-            document.getElementById('country').addEventListener('change', validatePhoneLength);
-            document.getElementById('phone').addEventListener('input', validatePhoneLength);
-        });
     </script>
 </body>
 

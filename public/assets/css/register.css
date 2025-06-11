@@ -186,3 +186,25 @@ button:hover {
     background-repeat: no-repeat;
     background-position: center;
 }
+
+.error-message {
+    color: #dc3545;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+    display: none;
+}
+
+.success-message {
+    color: #28a745;
+    background-color: #d4edda;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border-radius: 0.25rem;
+}
+
+.format-hint {
+    color: #6c757d;
+    font-size: 0.75rem;
+    display: block;
+    margin-top: 0.25rem;
+}
