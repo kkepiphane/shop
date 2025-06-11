@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Création de compte - Mini E-commerce</title>
     <link href="{{ asset('assets/css/register.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
 </head>
@@ -74,11 +75,12 @@
         </form>
 
         <div class="links">
-            <a href="login.html">Déjà un compte ? Se connecter</a>
+            <a href="{{ route('login') }}">Déjà un compte ? Se connecter</a>
         </div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/libphonenumber-js/1.10.6/libphonenumber-js.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             fetch('https://restcountries.com/v3.1/all?fields=cca2,name,idd,flags')
@@ -395,6 +397,20 @@
                         document.getElementById('successMessage').style.display = 'block';
                     } else {
                         console.error(data.errors);
+                        let errorMessage = "";
+                        for (let key in data.errors) {
+                            if (data.errors.hasOwnProperty(key)) {
+                                errorMessage += data.errors[key][0] + "\n";
+                            }
+                        }
+                        Swal.fire({
+                            title: "Erreur !",
+                            text: errorMessage,
+                            icon: "error",
+                            confirmButtonText: "OK"
+                        });
+
+
                     }
                 })
                 .catch(error => {

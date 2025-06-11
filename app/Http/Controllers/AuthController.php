@@ -27,12 +27,24 @@ class AuthController extends Controller
         if (auth()->attempt($credentials)) {
             if (!auth()->user()->email_verified_at) {
                 auth()->logout();
-                return back()->with('error', 'Veuillez vérifier votre email avant de vous connecter.');
+
+                return response()->json([
+                    'errors' => [
+                        'email' => ['Veuillez vérifier votre email avant de vous connecter.']
+                    ]
+                ], 422);
             }
-            return redirect()->intended('/home');
+
+            return response()->json([
+                'redirect' => url('/')
+            ]);
         }
 
-        return back()->withErrors(['email' => 'Identifiants incorrects']);
+        return response()->json([
+            'errors' => [
+                'email' => ['Identifiants incorrects']
+            ]
+        ], 422);
     }
 
     public function showRegistrationForm()
@@ -40,14 +52,6 @@ class AuthController extends Controller
         return view('frontend.auth.register');
     }
 
-    public function checkPhone(Request $request)
-    {
-        $request->validate(['phone' => 'required|string']);
-
-        $exists = User::where('phone_number', $request->phone)->exists();
-
-        return response()->json(['available' => !$exists]);
-    }
 
     public function register(Request $request)
     {
@@ -102,17 +106,7 @@ class AuthController extends Controller
 
         return redirect()->route('login')->with('success', 'Votre email a été vérifié avec succès. Vous pouvez maintenant vous connecter.');
     }
-    private function formatPhoneNumber($phone, $countryCode)
-    {
-        $phoneUtil = \libphonenumber\PhoneNumberUtil::getInstance();
 
-        try {
-            $numberProto = $phoneUtil->parse($phone, $countryCode);
-            return $phoneUtil->format($numberProto, \libphonenumber\PhoneNumberFormat::E164);
-        } catch (\Exception $e) {
-            return $phone;
-        }
-    }
 
     private function sendVerificationEmail(User $user)
     {
@@ -128,9 +122,13 @@ class AuthController extends Controller
     }
 
 
-    public function logout()
+    public function logout(Request $request)
     {
         auth()->logout();
-        return redirect('/');
+
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect('/')->with('status', 'Vous avez été déconnecté avec succès.');
     }
 }

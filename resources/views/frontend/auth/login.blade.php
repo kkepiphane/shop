@@ -5,8 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Connexion - Mini E-commerce</title>
-    <link rel="stylesheet" href="style.css">
-
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <link href="{{ asset('assets/css/login.css') }}" rel="stylesheet">
 </head>
 
@@ -32,7 +31,7 @@
 
         <div class="links">
             <a href="forgot-password.html">Mot de passe oublié ?</a> |
-            <a href="register.html">Créer un compte</a>
+            <a href="{{ route('register') }}">Créer un compte</a>
         </div>
     </div>
 
@@ -51,42 +50,59 @@
             // Validation basique côté client
             let isValid = true;
 
-            // Vérifier l'email
             if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
                 document.getElementById('emailError').style.display = 'block';
                 isValid = false;
             }
 
-            // Vérifier le mot de passe (au moins 6 caractères)
             if (password.length < 6) {
                 document.getElementById('passwordError').style.display = 'block';
                 isValid = false;
             }
 
-            // Si le formulaire est valide, envoyer les données au serveur
             if (isValid) {
-                console.log('Envoi des données au serveur:', {
-                    email,
-                    password
-                });
-
+                fetch('/login', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            email,
+                            password
+                        })
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            return response.json().then(err => {
+                                throw err;
+                            });
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.redirect) {
+                            window.location.href = data.redirect;
+                        }
+                    })
+                    .catch(error => {
+                        if (error.errors) {
+                            if (error.errors.email) {
+                                document.getElementById('emailError').textContent = error.errors.email[0];
+                                document.getElementById('emailError').style.display = 'block';
+                            }
+                            if (error.errors.password) {
+                                document.getElementById('passwordError').textContent = error.errors.password[0];
+                                document.getElementById('passwordError').style.display = 'block';
+                            }
+                        } else {
+                            document.getElementById('passwordError').textContent = 'Une erreur est survenue';
+                            document.getElementById('passwordError').style.display = 'block';
+                        }
+                    });
             }
         });
-
-        // Fonction de simulation de réponse du serveur
-        function simulateServerResponse(email, password) {
-            // Ceci est une simulation - en réalité, vous feriez une requête AJAX
-            setTimeout(() => {
-                // Simuler une réponse d'erreur pour les identifiants incorrects
-                if (password !== "correctpassword") {
-                    document.getElementById('passwordError').style.display = 'block';
-                    document.getElementById('passwordError').textContent = 'Email ou mot de passe incorrect';
-                } else {
-                    // Redirection si la connexion réussit
-                    window.location.href = 'products.html';
-                }
-            }, 1000);
-        }
     </script>
 </body>
 

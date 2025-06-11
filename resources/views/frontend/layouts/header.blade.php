@@ -14,8 +14,24 @@
 					</li>
 					<li><a class="nav-link" href="{{ route('shop') }}">Boutique</a></li>
 					<li><a class="nav-link" href="{{ route('contact') }}">Contact</a></li>
+					@auth
+					<li class="nav-item dropdown">
+						<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+							{{ Auth::user()->full_name }}
+						</a>
+						<ul class="dropdown-menu">
+							<li>
+								<form method="POST" action="{{ route('logout') }}">
+									@csrf
+									<button type="submit" class="dropdown-item">Déconnexion</button>
+								</form>
+							</li>
+						</ul>
+					</li>
+					@else
 					<li><a class="nav-link" href="{{ route('login') }}">Connexion</a></li>
 					<li><a class="nav-link" href="{{ route('register') }}">Inscription</a></li>
+					@endauth
 				</ul>
 
 				<ul class="custom-navbar-cta navbar-nav mb-2 mb-md-0 ms-5">
