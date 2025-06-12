@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\ProductResource;
+use App\Models\Product;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
@@ -10,9 +12,8 @@ class HomeController extends Controller
   //Races 
   public function index()
   {
-    // $lists = Couleur::orderBy('created_at', 'desc')->get();
-    // $colors = CouleurResource::collection($lists);
-    return view('frontend.home.index');
+    $listsProducts = Product::orderBy('created_at', 'desc')->limit(3)->get();
+    $products = ProductResource::collection($listsProducts);
+    return view('frontend.home.index', compact('products'));
   }
-
 }

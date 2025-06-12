@@ -35,6 +35,11 @@ return [
         'merchant_number' => env('KPRIMEPAY_MERCHANT_NUMBER'),
         'secret_key' => env('KPRIMEPAY_SECRET_KEY'),
         'api_url' => env('KPRIMEPAY_API_URL'),
+
+        'name_seeder'=> env('NAME_SEEDER'),
+        'sms_api_url' => env('KPRIMEPAY_API_URL_SMS'),
+        'sms_token' => env('KPRIMEPAY_SMS_TOKEN'),
+        'sms_key' => env('KPRIMEPAY_SMS_KEY'),
     ],
 
 ];

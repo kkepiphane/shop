@@ -27,7 +27,7 @@
                     </div>
                     <div class="card-body">
                         <span class="icon-check_circle display-3 text-success"></span>
-                        <p class="lead mb-5">Nous avons bien reçu votre paiement. Vous recevrez un email de confirmation sous peu.</p>
+                        <p class="lead mb-5">Nous avons bien reçu votre paiement. <br> Vous recevrez un email de confirmation sous peu.</p>
                         <p><a href="{{ route('home') }}" class="btn btn-black btn-lg">Retour à l'accueil</a></p>
                     </div>
                 </div>

@@ -16,7 +16,7 @@ class CheckoutController extends Controller
 {
     public function showCheckout()
     {
-        
+
         if (\Cart::isEmpty()) {
             return redirect()->route('cart.view')->with('error', 'Votre panier est vide');
         }
@@ -95,16 +95,35 @@ class CheckoutController extends Controller
             "locale" => "fr",
             "custom_meta_data" => ""
         ];
-        Log::info($paymentData);
 
         $response = Http::withHeaders([
             'auth_token' => config('services.kprimepay.secret_key'),
             'Content-Type' => 'application/json',
         ])->post(config('services.kprimepay.api_url'), $paymentData);
-        Log::info($response);
+
 
         // Traiter la réponse
         if ($response->successful() && $response->json('status')) {
+
+
+            $smsData = [
+                "sender" => config('services.kprimepay.name_seeder'),
+                "country" => $request->country,
+                "phone_number" => $request->phone,
+                "message" => "Bonjour " . $request->fullname . ", votre commande a été reçue avec succès , Ref (Utiliser la référence de paiement KPRIMEPAY). Livraison le (date de livraison = date de paiement + 05 jours )",
+                "response_url" => route('checkout.complete', $order->id),
+            ];
+
+
+            $responseSMS = Http::withHeaders([
+                'token' => config('services.kprimepay.sms_token'),
+                'key' => config('services.kprimepay.sms_key'),
+                'Content-Type' => 'application/json',
+            ])->post(config('services.kprimepay.sms_api_url'), $smsData);
+            Log::info($smsData);
+            Log::info($responseSMS);
+
+
             // Vider le panier
             \Cart::clear();
 
