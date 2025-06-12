@@ -1,0 +1,163 @@
+input:focus,
+select:focus {
+    outline: none;
+    border-color: #3b5d50;
+}
+
+button {
+    width: 100%;
+    padding: 12px;
+    background-color: #3b5d50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #3b5d50;
+}
+
+.error-message {
+    color: #e74c3c;
+    margin-top: 5px;
+    font-size: 14px;
+    display: none;
+}
+
+.links {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.links a {
+    color: #4a90e2;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.links a:hover {
+    text-decoration: underline;
+}
+
+.phone-group {
+    display: flex;
+    align-items: center;
+}
+
+.phone-prefix {
+    width: 80px;
+    margin-right: 10px;
+    flex-shrink: 0;
+}
+
+.phone-number {
+    flex-grow: 1;
+}
+
+.success-message {
+    display: none;
+    background-color: #d4edda;
+    color: #155724;
+    padding: 15px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+/* Style pour le sélecteur de pays avec drapeau */
+.country-select-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.selected-flag {
+    padding: 0 10px;
+    display: flex;
+    align-items: center;
+    background: #f8f8f8;
+    height: 100%;
+}
+
+#country {
+    flex-grow: 1;
+    padding: 10px;
+    padding-left: 5px;
+    border: none;
+    outline: none;
+    appearance: none;
+    background: transparent;
+}
+
+/* Style pour le préfixe téléphonique avec drapeau */
+.phone-group {
+    display: flex;
+    align-items: center;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.phone-prefix-container {
+    display: flex;
+    align-items: center;
+    background: #f8f8f8;
+    padding: 0 10px;
+}
+
+.phone-prefix {
+    border: none;
+    background: transparent;
+    width: 60px;
+    outline: none;
+}
+
+.phone-number {
+    flex-grow: 1;
+    border: none;
+    padding: 10px;
+    outline: none;
+}
+
+.flag-icon {
+    width: 20px;
+    height: 15px;
+    margin-right: 8px;
+    display: inline-block;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.flag-c {
+    margin-bottom: 14px;
+}
+
+.error-message {
+    color: #dc3545;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+    display: none;
+}
+
+.success-message {
+    color: #28a745;
+    background-color: #d4edda;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border-radius: 0.25rem;
+}
+
+.format-hint {
+    color: #6c757d;
+    font-size: 0.75rem;
+    display: block;
+    margin-top: 0.25rem;
+}

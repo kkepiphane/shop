@@ -1,6 +1,8 @@
 @extends('app')
 
 @section('content')
+
+<link href="{{ asset('assets/css/checkout.css') }}" rel="stylesheet">
 <!-- Start Hero Section -->
 <div class="hero">
     <div class="container">
@@ -20,202 +22,98 @@
 
 <div class="untree_co-section">
     <div class="container">
-        <div class="row mb-5">
-            <div class="col-md-12">
-                <div class="border p-4 rounded" role="alert">
-                    Returning customer? <a href="#">Click here</a> to login
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-6 mb-5 mb-md-0">
-                <h2 class="h3 mb-3 text-black">Billing Details</h2>
-                <div class="p-3 p-lg-5 border bg-white">
-                    <div class="form-group">
-                        <label for="c_country" class="text-black">Country <span class="text-danger">*</span></label>
-                        <select id="c_country" class="form-control">
-                            <option value="1">Select a country</option>
-                            <option value="2">bangladesh</option>
-                            <option value="3">Algeria</option>
-                            <option value="4">Afghanistan</option>
-                            <option value="5">Ghana</option>
-                            <option value="6">Albania</option>
-                            <option value="7">Bahrain</option>
-                            <option value="8">Colombia</option>
-                            <option value="9">Dominican Republic</option>
-                        </select>
-                    </div>
-                    <div class="form-group row">
-                        <div class="col-md-6">
-                            <label for="c_fname" class="text-black">First Name <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="c_fname" name="c_fname">
+        <form method="POST" action="{{ route('checkout.process') }}" id="registerForm">
+            <div class="row">
+                <div class="col-md-6 mb-5 mb-md-0">
+                    <h2 class="h3 mb-3 text-black">Détails de la livraison</h2>
+                    <div class="p-3 p-lg-5 border bg-white">
+                        @csrf
+                        <div class="form-group">
+                            <label for="country">Pays</label>
+                            <div class="country-select-wrapper">
+                                <div class="selected-flag">
+                                    <span id="selectedCountryFlag"></span>
+                                </div>
+                                <select id="country" class="form-control" name="country" required>
+                                    <option value="">Sélectionnez votre pays</option>
+                                    <!-- Les options seront chargées dynamiquement -->
+                                </select>
+                            </div>
+                            <div id="countryError" class="error-message">Veuillez sélectionner votre pays</div>
                         </div>
-                        <div class="col-md-6">
-                            <label for="c_lname" class="text-black">Last Name <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="c_lname" name="c_lname">
+                        <div class="form-group row">
+                            <div class="form-group">
+                                <label for="fullname">Nom complet</label>
+                                <input type="text" id="fullname" name="fullname" class="form-control" value="{{ $userData['fullname'] ?? '' }}" required>
+                                <div id="fullnameError" class="error-message">Veuillez entrer votre nom complet</div>
+                            </div>
                         </div>
-                    </div>
-
-                    <div class="form-group row">
-                        <div class="col-md-12">
-                            <label for="c_companyname" class="text-black">Company Name </label>
-                            <input type="text" class="form-control" id="c_companyname" name="c_companyname">
-                        </div>
-                    </div>
-
-                    <div class="form-group row">
-                        <div class="col-md-12">
-                            <label for="c_address" class="text-black">Address <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="c_address" name="c_address" placeholder="Street address">
-                        </div>
-                    </div>
-
-                    <div class="form-group mt-3">
-                        <input type="text" class="form-control" placeholder="Apartment, suite, unit etc. (optional)">
-                    </div>
 
                     <div class="form-group row">
                         <div class="col-md-6">
-                            <label for="c_state_country" class="text-black">State / Country <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="c_state_country" name="c_state_country">
+                            <div class="form-group">
+                                <label for="c_address" class="text-black">Adresse <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="c_address" name="c_address" placeholder="Street address">
+                                <div id="addressError" class="error-message"></div>
+                            </div>
                         </div>
                         <div class="col-md-6">
-                            <label for="c_postal_zip" class="text-black">Posta / Zip <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="c_postal_zip" name="c_postal_zip">
+                            <label for="c_address" class="text-black">Adresse de livraison <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" placeholder="Apartment, suite, unit etc. (optional)">
+
                         </div>
                     </div>
 
                     <div class="form-group row mb-5">
-                        <div class="col-md-6">
-                            <label for="c_email_address" class="text-black">Email Address <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="c_email_address" name="c_email_address">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="email">Email</label><span class="text-danger">*</span>
+                                <input type="email" id="email" name="email" value="{{ $userData['email'] ?? '' }}" class="form-control" required>
+                                <div id="emailError" class="error-message"></div>
+                            </div>
                         </div>
-                        <div class="col-md-6">
-                            <label for="c_phone" class="text-black">Phone <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="c_phone" name="c_phone" placeholder="Phone Number">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="phone">Numéro de téléphone</label><span class="text-danger">*</span>
+                                <div class="phone-group">
+                                    <div class="phone-prefix-container">
+                                        <span id="phonePrefixFlag" class="flag-icon flag-c"></span>
+                                        <input type="text" id="phonePrefix" class="phone-prefix" value="{{ $userData['phone'] ?? '' }}" readonly>
+                                    </div>
+                                    <input type="tel" id="phone" name="phone" class="phone-number" required>
+                                </div>
+                                <div id="phoneError" class="error-message"></div>
+                                <small id="phoneFormatHint" class="format-hint"></small>
+                            </div>
                         </div>
                     </div>
 
+                    @if(auth()->check())
+                    <div class="alert alert-info">
+                        Vous êtes connecté en tant que {{ auth()->user()->full_name }}.
+                    </div>
+                    @else
                     <div class="form-group">
-                        <label for="c_create_account" class="text-black" data-bs-toggle="collapse" href="#create_an_account" role="button" aria-expanded="false" aria-controls="create_an_account"><input type="checkbox" value="1" id="c_create_account"> Create an account?</label>
+                        <label for="c_create_account" class="text-black" data-bs-toggle="collapse" href="#create_an_account" role="button" aria-expanded="false" aria-controls="create_an_account">
+                            <input type="checkbox" value="1" id="c_create_account"> Créer un compte ?
+                        </label>
                         <div class="collapse" id="create_an_account">
                             <div class="py-2 mb-4">
-                                <p class="mb-3">Create an account by entering the information below. If you are a returning customer please login at the top of the page.</p>
+                                <p class="mb-3">Créez un compte en saisissant les informations ci-dessous.</p>
                                 <div class="form-group">
-                                    <label for="c_account_password" class="text-black">Account Password</label>
-                                    <input type="email" class="form-control" id="c_account_password" name="c_account_password" placeholder="">
+                                    <label for="password" class="text-black">Mot de passe</label>
+                                    <input type="password" class="form-control" id="password" name="password" placeholder="">
                                 </div>
                             </div>
                         </div>
                     </div>
-
-
-                    <div class="form-group">
-                        <label for="c_ship_different_address" class="text-black" data-bs-toggle="collapse" href="#ship_different_address" role="button" aria-expanded="false" aria-controls="ship_different_address"><input type="checkbox" value="1" id="c_ship_different_address"> Ship To A Different Address?</label>
-                        <div class="collapse" id="ship_different_address">
-                            <div class="py-2">
-
-                                <div class="form-group">
-                                    <label for="c_diff_country" class="text-black">Country <span class="text-danger">*</span></label>
-                                    <select id="c_diff_country" class="form-control">
-                                        <option value="1">Select a country</option>
-                                        <option value="2">bangladesh</option>
-                                        <option value="3">Algeria</option>
-                                        <option value="4">Afghanistan</option>
-                                        <option value="5">Ghana</option>
-                                        <option value="6">Albania</option>
-                                        <option value="7">Bahrain</option>
-                                        <option value="8">Colombia</option>
-                                        <option value="9">Dominican Republic</option>
-                                    </select>
-                                </div>
-
-
-                                <div class="form-group row">
-                                    <div class="col-md-6">
-                                        <label for="c_diff_fname" class="text-black">First Name <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" id="c_diff_fname" name="c_diff_fname">
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label for="c_diff_lname" class="text-black">Last Name <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" id="c_diff_lname" name="c_diff_lname">
-                                    </div>
-                                </div>
-
-                                <div class="form-group row">
-                                    <div class="col-md-12">
-                                        <label for="c_diff_companyname" class="text-black">Company Name </label>
-                                        <input type="text" class="form-control" id="c_diff_companyname" name="c_diff_companyname">
-                                    </div>
-                                </div>
-
-                                <div class="form-group row  mb-3">
-                                    <div class="col-md-12">
-                                        <label for="c_diff_address" class="text-black">Address <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" id="c_diff_address" name="c_diff_address" placeholder="Street address">
-                                    </div>
-                                </div>
-
-                                <div class="form-group">
-                                    <input type="text" class="form-control" placeholder="Apartment, suite, unit etc. (optional)">
-                                </div>
-
-                                <div class="form-group row">
-                                    <div class="col-md-6">
-                                        <label for="c_diff_state_country" class="text-black">State / Country <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" id="c_diff_state_country" name="c_diff_state_country">
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label for="c_diff_postal_zip" class="text-black">Posta / Zip <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" id="c_diff_postal_zip" name="c_diff_postal_zip">
-                                    </div>
-                                </div>
-
-                                <div class="form-group row mb-5">
-                                    <div class="col-md-6">
-                                        <label for="c_diff_email_address" class="text-black">Email Address <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" id="c_diff_email_address" name="c_diff_email_address">
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label for="c_diff_phone" class="text-black">Phone <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" id="c_diff_phone" name="c_diff_phone" placeholder="Phone Number">
-                                    </div>
-                                </div>
-
-                            </div>
-
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="c_order_notes" class="text-black">Order Notes</label>
-                        <textarea name="c_order_notes" id="c_order_notes" cols="30" rows="5" class="form-control" placeholder="Write your notes here..."></textarea>
-                    </div>
-
+                    @endif
                 </div>
             </div>
             <div class="col-md-6">
-
                 <div class="row mb-5">
                     <div class="col-md-12">
-                        <h2 class="h3 mb-3 text-black">Coupon Code</h2>
-                        <div class="p-3 p-lg-5 border bg-white">
-
-                            <label for="c_code" class="text-black mb-3">Enter your coupon code if you have one</label>
-                            <div class="input-group w-75 couponcode-wrap">
-                                <input type="text" class="form-control me-2" id="c_code" placeholder="Coupon Code" aria-label="Coupon Code" aria-describedby="button-addon2">
-                                <div class="input-group-append">
-                                    <button class="btn btn-black btn-sm" type="button" id="button-addon2">Apply</button>
-                                </div>
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row mb-5">
-                    <div class="col-md-12">
-                        <h2 class="h3 mb-3 text-black">Your Order</h2>
+                        <h2 class="h3 mb-3 text-black">Votre commande</h2>
                         <div class="p-3 p-lg-5 border bg-white">
                             <table class="table site-block-order-table mb-5">
                                 <thead>
@@ -223,57 +121,28 @@
                                     <th>Total</th>
                                 </thead>
                                 <tbody>
+
+                                    @foreach($cartItems as $item)
                                     <tr>
-                                        <td>Top Up T-Shirt <strong class="mx-2">x</strong> 1</td>
-                                        <td>$250.00</td>
+                                        <td class="product-name">
+                                            {{ $item->name }} <strong class="mx-2">x</strong> {{ $item->quantity }}
+                                        </td>
+                                        <td>{{ $item->price * $item->quantity }} FCFA</td>
                                     </tr>
-                                    <tr>
-                                        <td>Polo Shirt <strong class="mx-2">x</strong> 1</td>
-                                        <td>$100.00</td>
-                                    </tr>
+                                    @endforeach
                                     <tr>
                                         <td class="text-black font-weight-bold"><strong>Cart Subtotal</strong></td>
-                                        <td class="text-black">$350.00</td>
+                                        <td class="text-black">{{ \Cart::getSubTotal() }} FCFA</td>
                                     </tr>
                                     <tr>
-                                        <td class="text-black font-weight-bold"><strong>Order Total</strong></td>
-                                        <td class="text-black font-weight-bold"><strong>$350.00</strong></td>
+                                        <td class="text-black font-weight-bold"><strong>Commande Total</strong></td>
+                                        <td class="text-black font-weight-bold"><strong>{{ \Cart::getTotal() }} FCFA</strong></td>
                                     </tr>
                                 </tbody>
                             </table>
 
-                            <div class="border p-3 mb-3">
-                                <h3 class="h6 mb-0"><a class="d-block" data-bs-toggle="collapse" href="#collapsebank" role="button" aria-expanded="false" aria-controls="collapsebank">Direct Bank Transfer</a></h3>
-
-                                <div class="collapse" id="collapsebank">
-                                    <div class="py-2">
-                                        <p class="mb-0">Make your payment directly into our bank account. Please use your Order ID as the payment reference. Your order won’t be shipped until the funds have cleared in our account.</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="border p-3 mb-3">
-                                <h3 class="h6 mb-0"><a class="d-block" data-bs-toggle="collapse" href="#collapsecheque" role="button" aria-expanded="false" aria-controls="collapsecheque">Cheque Payment</a></h3>
-
-                                <div class="collapse" id="collapsecheque">
-                                    <div class="py-2">
-                                        <p class="mb-0">Make your payment directly into our bank account. Please use your Order ID as the payment reference. Your order won’t be shipped until the funds have cleared in our account.</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="border p-3 mb-5">
-                                <h3 class="h6 mb-0"><a class="d-block" data-bs-toggle="collapse" href="#collapsepaypal" role="button" aria-expanded="false" aria-controls="collapsepaypal">Paypal</a></h3>
-
-                                <div class="collapse" id="collapsepaypal">
-                                    <div class="py-2">
-                                        <p class="mb-0">Make your payment directly into our bank account. Please use your Order ID as the payment reference. Your order won’t be shipped until the funds have cleared in our account.</p>
-                                    </div>
-                                </div>
-                            </div>
-
                             <div class="form-group">
-                                <button class="btn btn-black btn-lg py-3 btn-block" onclick="window.location='thankyou.html'">Place Order</button>
+                                <button type="submit" class="btn btn-black btn-lg py-3 btn-block">Payer</button>
                             </div>
 
                         </div>
@@ -281,12 +150,355 @@
                 </div>
 
             </div>
-        </div>
-        <!-- </form> -->
     </div>
+    </form>
+    <!-- </form> -->
+</div>
 </div>
 
 @endsection
 @push('scripts')
+<script src="https://cdnjs.cloudflare.com/ajax/libs/libphonenumber-js/1.10.6/libphonenumber-js.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        fetch('https://restcountries.com/v3.1/all?fields=cca2,name,idd,flags')
+            .then(response => response.json())
+            .then(data => {
+                const countrySelect = document.getElementById('country');
+                const selectedFlag = document.getElementById('selectedCountryFlag');
+                const phonePrefixFlag = document.getElementById('phonePrefixFlag');
+                const phonePrefix = document.getElementById('phonePrefix');
 
+                // Trier les pays par nom commun
+                data.sort((a, b) => a.name.common.localeCompare(b.name.common));
+
+                data.forEach(country => {
+                    const option = document.createElement('option');
+                    option.value = country.cca2;
+
+                    // Utiliser le SVG si disponible, sinon le PNG
+                    const flagUrl = country.flags.svg || country.flags.png;
+                    option.innerHTML = `
+                    <img src="${flagUrl}" alt="${country.name.common}" class="flag-icon">
+                    ${country.name.common}
+                `;
+
+                    option.dataset.phoneCode = country.idd.root + (country.idd.suffixes?.length === 1 ? country.idd.suffixes[0] : '');
+                    option.dataset.flag = flagUrl;
+                    countrySelect.appendChild(option);
+                });
+
+                // Gérer le changement de sélection
+                countrySelect.addEventListener('change', function() {
+                    const selectedOption = this.options[this.selectedIndex];
+                    const flagUrl = selectedOption.dataset.flag;
+                    const phoneCode = selectedOption.dataset.phoneCode;
+
+                    selectedFlag.innerHTML = `<img src="${flagUrl}" alt="Flag" class="flag-icon">`;
+
+                    phonePrefixFlag.innerHTML = `<img src="${flagUrl}" alt="Flag" class="flag-icon">`;
+                    phonePrefix.value = phoneCode;
+                });
+
+                // Détection automatique du pays
+                detectUserCountry();
+
+                // Gestion de la soumission du formulaire
+                // document.getElementById('registerForm').addEventListener('submit', function(e) {
+                //     e.preventDefault();
+                //     if (validateForm()) {
+                //         // Si la validation réussit, vous pouvez envoyer le formulaire
+                //         submitForm();
+                //     }
+                // });
+
+                // Validation du numéro de téléphone en temps réel
+                document.getElementById('phone').addEventListener('input', function() {
+                    validatePhoneNumber();
+                });
+
+                // Lorsque le pays change, valider à nouveau le numéro
+                document.getElementById('country').addEventListener('change', function() {
+                    validatePhoneNumber();
+                    updatePhoneFormatHint();
+                });
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+                loadBackupCountries();
+            });
+
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            if (validateForm()) {
+                // Afficher un loader
+                const submitBtn = this.querySelector('button[type="submit"]');
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Traitement...';
+
+                // Soumettre le formulaire
+                this.submit();
+            }
+        });
+    });
+
+
+    function detectUserCountry() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                position => {
+                    fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${position.coords.latitude}&longitude=${position.coords.longitude}&localityLanguage=fr`)
+                        .then(response => response.json())
+                        .then(data => {
+                            const countryCode = data.countryCode;
+                            if (countryCode) {
+                                const countrySelect = document.getElementById('country');
+                                countrySelect.value = countryCode;
+                                countrySelect.dispatchEvent(new Event('change'));
+                            }
+                        });
+                },
+                error => {
+                    console.log('Geolocation error:', error);
+                    detectCountryByIP();
+                }
+            );
+        } else {
+            detectCountryByIP();
+        }
+    }
+
+    function loadBackupCountries() {
+        const backupCountries = [{
+                cca2: 'TG',
+                name: {
+                    common: 'Togo'
+                },
+                idd: {
+                    root: '+228',
+                    suffixes: ['228']
+                },
+                flags: {
+                    svg: 'https://flagcdn.com/tg.svg'
+                }
+            },
+
+        ];
+
+        const countrySelect = document.getElementById('country');
+        backupCountries.forEach(country => {
+            const option = document.createElement('option');
+            option.value = country.cca2;
+            option.innerHTML = `<img src="${country.flags.svg}" alt="${country.name.common}" class="flag-icon"> ${country.name.common}`;
+            option.dataset.phoneCode = country.idd.root + country.idd.suffixes[0];
+            option.dataset.flag = country.flags.svg;
+            countrySelect.appendChild(option);
+        });
+    }
+
+    function validateForm() {
+        let isValid = true;
+
+        // Valider le nom complet
+        const fullname = document.getElementById('fullname').value.trim();
+        if (!fullname) {
+            document.getElementById('fullnameError').style.display = 'block';
+            isValid = false;
+        } else {
+            document.getElementById('fullnameError').style.display = 'none';
+        }
+
+        // Valider l'email
+        const email = document.getElementById('email').value.trim();
+        if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            document.getElementById('emailError').textContent = 'Veuillez entrer une adresse email valide';
+            document.getElementById('emailError').style.display = 'block';
+            isValid = false;
+        } else {
+            document.getElementById('emailError').style.display = 'none';
+        }
+
+        // Valider le pays
+        const country = document.getElementById('country').value;
+        if (!country) {
+            document.getElementById('countryError').style.display = 'block';
+            isValid = false;
+        } else {
+            document.getElementById('countryError').style.display = 'none';
+        }
+
+        // Valider l'adresse
+        const address = document.getElementById('c_address').value.trim();
+        if (!address) {
+            document.getElementById('addressError').style.display = 'block';
+            isValid = false;
+        } else {
+            document.getElementById('addressError').style.display = 'none';
+        }
+
+        // Valider le numéro de téléphone
+        if (!validatePhoneNumber()) {
+            isValid = false;
+        }
+
+        return isValid;
+    }
+
+    function validatePhoneNumber() {
+        const phoneNumberInput = document.getElementById('phone').value.trim();
+        const countryCode = document.getElementById('country').value;
+        const phonePrefix = document.getElementById('phonePrefix').value.trim();
+        const phoneError = document.getElementById('phoneError');
+
+        if (!phoneNumberInput) {
+            phoneError.textContent = 'Veuillez entrer un numéro de téléphone';
+            phoneError.style.display = 'block';
+            return false;
+        }
+
+        if (!countryCode) {
+            phoneError.textContent = 'Veuillez d\'abord sélectionner un pays';
+            phoneError.style.display = 'block';
+            return false;
+        }
+
+        // Combiner le préfixe et le numéro saisi
+        const fullPhoneNumber = phonePrefix + phoneNumberInput;
+
+        try {
+            const phoneNumber = libphonenumber.parsePhoneNumber(fullPhoneNumber, countryCode);
+
+            if (phoneNumber && phoneNumber.isValid()) {
+                // Afficher le numéro formaté (sans répéter le préfixe)
+                document.getElementById('phone').value = phoneNumber.nationalNumber;
+                phoneError.style.display = 'none';
+                return true;
+            } else {
+                phoneError.textContent = 'Numéro de téléphone invalide pour ce pays';
+                phoneError.style.display = 'block';
+                return false;
+            }
+        } catch (error) {
+            phoneError.textContent = 'Format de numéro invalide';
+            phoneError.style.display = 'block';
+            return false;
+        }
+    }
+
+    const phoneFormats = {
+        'TG': {
+            pattern: '[279]\\d{7}',
+            format: '(\\d{2})(\\d{2})(\\d{2})(\\d{2})',
+            example: '90 12 34 56',
+            length: 8
+        },
+        'BJ': {
+            pattern: '(?:[25689]\\d|40)\\d{6}',
+            format: '(\\d{2})(\\d{2})(\\d{2})(\\d{2})',
+            example: '96 12 34 56',
+            length: 8
+        },
+        'CM': {
+            pattern: '[26]\\d{8}|88\\d{6,7}',
+            formats: [{
+                    pattern: '88\\d{6}',
+                    format: '(\\d{2})(\\d{2})(\\d{2})(\\d{2})',
+                    example: '88 12 34 56',
+                    length: 8
+                },
+                {
+                    pattern: '[26]\\d{8}',
+                    format: '(\\d)(\\d{2})(\\d{2})(\\d{2})(\\d{2})',
+                    example: '6 12 34 56 78',
+                    length: 9
+                }
+            ]
+        },
+        'CN': {
+            pattern: '1[127]\\d{8,9}|2\\d{9}(?:\\d{2})?|[12]\\d{6,7}|86\\d{6}|(?:1[03-689]\\d|6)\\d{7,9}|(?:[3-579]\\d|8[0-57-9])\\d{6,9}',
+            format: '(\\d{3})(\\d{4})(\\d{4})',
+            example: '131 2345 6789',
+            length: 11
+        }
+        // Vous pouvez ajouter tous les autres pays ici en suivant le même format
+    };
+
+    function updatePhoneFormatHint() {
+        const countryCode = document.getElementById('country').value;
+        const hintElement = document.getElementById('phoneFormatHint');
+
+        if (!countryCode) {
+            hintElement.textContent = '';
+            return;
+        }
+
+        // Exemples de formats nationaux (sans l'indicatif)
+        const examples = {
+            'FR': 'ex: 6 12 34 56 78',
+            'US': 'ex: (201) 555-0123',
+            'GB': 'ex: 7400 123456',
+            'DE': 'ex: 171 1234567',
+            'TG': 'ex: 90 12 34 56',
+            'BE': 'ex: 470 12 34 56',
+            // Ajoutez d'autres pays selon vos besoins
+        };
+
+        // const format = phoneFormats[countryCode];
+        // hintElement.textContent = `le numéro de téléphone comporte: ${format.example} (${format.length} chiffres)`;
+    }
+
+    // function submitForm() {
+    //     if (!validateForm()) return;
+
+    //     const formData = {
+    //         full_name: document.getElementById('fullname').value,
+    //         email: document.getElementById('email').value,
+    //         country: document.getElementById('country').value,
+    //         phone_number: document.getElementById('phone').value,
+    //         phone_prefix: document.getElementById('phonePrefix').value,
+    //         password: document.getElementById('password').value,
+
+    //     };
+
+    //     country = document.getElementById('country').value,
+    //         console.log(country)
+
+    //     fetch('/register', {
+    //             method: 'POST',
+    //             headers: {
+    //                 'Content-Type': 'application/json',
+    //                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+    //                 'Accept': 'application/json'
+    //             },
+    //             body: JSON.stringify(formData)
+    //         })
+    //         .then(response => response.json())
+    //         .then(data => {
+    //             if (data.success) {
+    //                 document.getElementById('registerForm').style.display = 'none';
+    //                 document.getElementById('successMessage').style.display = 'block';
+    //             } else {
+    //                 console.error(data.errors);
+    //                 let errorMessage = "";
+    //                 for (let key in data.errors) {
+    //                     if (data.errors.hasOwnProperty(key)) {
+    //                         errorMessage += data.errors[key][0] + "\n";
+    //                     }
+    //                 }
+    //                 Swal.fire({
+    //                     title: "Erreur !",
+    //                     text: errorMessage,
+    //                     icon: "error",
+    //                     confirmButtonText: "OK"
+    //                 });
+
+
+    //             }
+    //         })
+    //         .catch(error => {
+    //             console.error('Error:', error);
+    //         });
+    // }
+</script>
 @endpush

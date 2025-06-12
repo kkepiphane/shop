@@ -39,7 +39,7 @@
                         <span id="selectedCountryFlag"></span>
                     </div>
                     <select id="country" name="country" required>
-                        <option value="">Sélectionnez votre pays</option>
+                        <option value="">Sélectionnez votre pays</option> 
                         <!-- Les options seront chargées dynamiquement -->
                     </select>
                 </div>

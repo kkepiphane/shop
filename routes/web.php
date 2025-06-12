@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\OrderController;
@@ -31,15 +32,22 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::get('/verify-email/{token}', [AuthController::class, 'verifyEmail'])->name('verify.email');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-Route::get('/shop', [ShopController::class, 'index'])->name('shop');
+Route::get('/shop', [ShopController::class, 'index'])->name(name: 'shop');
 Route::get('/contact', [ContactController::class, 'index'])->name('contact');
-Route::get('/cart', [CartController::class, 'index'])->name('cart');
 Route::get('/email/verify/{id}/{token}', [AuthController::class, 'verifyEmail'])
     ->name('verification.verify');
 
+
+Route::post('/cart/add', [CartController::class, 'addToCart'])->name('cart.add');
+Route::get('/cart', [CartController::class, 'index'])->name('cart.view');
+Route::post('/cart/update', [CartController::class, 'updateCart'])->name('cart.update');
+Route::post('/cart/remove', [CartController::class, 'removeFromCart'])->name('cart.remove');
 // Produits
 Route::get('/products', [ProductController::class, 'index'])->name('products.index')->middleware('auth', 'verified');
 Route::get('/products/{product}', [ProductController::class, 'show'])->name('products.show')->middleware('auth', 'verified');
 
-// Commandes
+
+Route::get('/checkout', [CheckoutController::class, 'showCheckout'])->name('checkout');
+Route::post('/checkout/process', [CheckoutController::class, 'processPayment'])->name('checkout.process');
+Route::get('/checkout/complete/{order}', [CheckoutController::class, 'paymentComplete'])->name('checkout.complete');
 Route::post('/products/{product}/checkout', [OrderController::class, 'checkout'])->name('orders.checkout')->middleware('auth', 'verified');
