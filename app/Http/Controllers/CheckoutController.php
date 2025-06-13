@@ -49,22 +49,18 @@ class CheckoutController extends Controller
             'c_address' => 'required|string',
         ]);
 
-        // Créer l'utilisateur ou récupérer l'utilisateur existant
-        $user = auth()->user();
+        // Gestion utilisateur
+        $user = auth()->user() ?? \App\Models\User::firstOrCreate(
+            ['email' => $request->email],
+            [
+                'full_name' => $request->fullname,
+                'password' => bcrypt(Str::random(16)),
+                'country' => $request->country,
+                'phone_number' => $request->phone,
+            ]
+        );
 
-        if (!$user) {
-            $user = \App\Models\User::firstOrCreate(
-                ['email' => $request->email],
-                [
-                    'full_name' => $request->fullname,
-                    'password' => bcrypt(Str::random(16)),
-                    'country' => $request->country,
-                    'phone_number' => $request->phone,
-                ]
-            );
-        }
-
-        // Créer la commande
+        // Création de la commande
         $order = Order::create([
             'user_id' => $user->id,
             'order_number' => 'ORD' . strtoupper(Str::random(10)),
@@ -72,7 +68,7 @@ class CheckoutController extends Controller
             'status' => 'pending',
         ]);
 
-        // Ajouter les articles de la commande
+        // Ajout des articles
         foreach (\Cart::getContent() as $item) {
             OrderItem::create([
                 'order_id' => $order->id,
@@ -82,7 +78,7 @@ class CheckoutController extends Controller
             ]);
         }
 
-
+        // Préparation des données de paiement
         $paymentData = [
             "merchant_number" => config('services.kprimepay.merchant_number'),
             "transaction_id" => $order->order_number,
@@ -93,48 +89,30 @@ class CheckoutController extends Controller
             "description" => "Paiement pour la commande " . $order->order_number,
             "return_url" => route('checkout.complete', $order->id),
             "locale" => "fr",
-            "custom_meta_data" => ""
+            "custom_meta_data" => [
+                'order_id' => $order->id,
+                'user_id' => $user->id,
+                'phone' => $request->phone
+            ],
         ];
+        //Log::info($paymentData);
 
+        // Initialisation du paiement
         $response = Http::withHeaders([
             'auth_token' => config('services.kprimepay.secret_key'),
             'Content-Type' => 'application/json',
         ])->post(config('services.kprimepay.api_url'), $paymentData);
 
+        //Log::info($response);
 
-        // Traiter la réponse
         if ($response->successful() && $response->json('status')) {
-
-
-            $smsData = [
-                "sender" => config('services.kprimepay.name_seeder'),
-                "country" => $request->country,
-                "phone_number" => $request->phone,
-                "message" => "Bonjour " . $request->fullname . ", votre commande a été reçue avec succès , Ref (Utiliser la référence de paiement KPRIMEPAY). Livraison le (date de livraison = date de paiement + 05 jours )",
-                "response_url" => route('checkout.complete', $order->id),
-            ];
-
-
-            $responseSMS = Http::withHeaders([
-                'token' => config('services.kprimepay.sms_token'),
-                'key' => config('services.kprimepay.sms_key'),
-                'Content-Type' => 'application/json',
-            ])->post(config('services.kprimepay.sms_api_url'), $smsData);
-            Log::info($smsData);
-            Log::info($responseSMS);
-
-
-            // Vider le panier
             \Cart::clear();
-
-            // Rediriger vers la page de paiement
             return redirect()->away($response->json('data.checkout_url'));
-        } else {
-            // En cas d'erreur
-            return back()->with('error', 'Erreur lors de l\'initialisation du paiement: ' . $response->json('message'));
         }
-    }
 
+        // Gestion des erreurs
+        return back()->with('error', 'Erreur lors de l\'initialisation du paiement');
+    }
     public function paymentComplete($orderId)
     {
         $order = Order::findOrFail($orderId);

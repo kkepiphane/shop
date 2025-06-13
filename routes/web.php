@@ -5,9 +5,12 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ShopController;
+use App\Http\Controllers\SmsController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -33,6 +36,7 @@ Route::get('/verify-email/{token}', [AuthController::class, 'verifyEmail'])->nam
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::get('/shop', [ShopController::class, 'index'])->name(name: 'shop');
+Route::get('/shop/detail/{id}', [ShopController::class, 'show'])->name(name: 'shop.show');
 Route::get('/contact', [ContactController::class, 'index'])->name('contact');
 Route::get('/email/verify/{id}/{token}', [AuthController::class, 'verifyEmail'])
     ->name('verification.verify');
@@ -50,4 +54,17 @@ Route::get('/products/{product}', [ProductController::class, 'show'])->name('pro
 Route::get('/checkout', [CheckoutController::class, 'showCheckout'])->name('checkout');
 Route::post('/checkout/process', [CheckoutController::class, 'processPayment'])->name('checkout.process');
 Route::get('/checkout/complete/{order}', [CheckoutController::class, 'paymentComplete'])->name('checkout.complete');
+Route::post('/callback', [CheckoutController::class, 'paymentComplete'])->name('checkout.complete');
 Route::post('/products/{product}/checkout', [OrderController::class, 'checkout'])->name('orders.checkout')->middleware('auth', 'verified');
+
+Route::post('/sms/webhook', [SmsController::class, 'handleWebhook'])->name('sms.webhook');
+// Callback pour KPRIMEPAY
+Route::post('/callback', [PaymentController::class, 'handleCallback'])
+    ->name('payment.callback');
+
+// Webhooks pour les statuts SMS/WhatsApp
+Route::post('/sms/webhook', [NotificationController::class, 'handleSmsWebhook'])
+    ->name('sms.webhook');
+
+Route::post('/whatsapp/webhook', [NotificationController::class, 'handleWhatsAppWebhook'])
+    ->name('whatsapp.webhook');

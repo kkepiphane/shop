@@ -16,4 +16,9 @@ class ShopController extends Controller
     $products = ProductResource::collection($listsProducts);
     return view('frontend.shop.index', compact('products'));
   }
+  public function show($id)
+  {
+    $product = Product::findOrFail($id);
+    return view('frontend.shop.show', compact('product'));
+  }
 }

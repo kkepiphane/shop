@@ -18,6 +18,8 @@
 		<link href="{{ asset('assets/css/style.css')}}" rel="stylesheet">
 		<title>{{ config('app.name') }}</title>
 		<meta name="csrf-token" content="{{ csrf_token() }}">
+		<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+
 		<style>
 			.alert-top-left {
 				position: fixed;

@@ -14,7 +14,7 @@ return [
     |
     */
 
-    'mailgun' => [ 
+    'mailgun' => [
         'domain' => env('MAILGUN_DOMAIN'),
         'secret' => env('MAILGUN_SECRET'),
         'endpoint' => env('MAILGUN_ENDPOINT', 'api.mailgun.net'),
@@ -36,10 +36,12 @@ return [
         'secret_key' => env('KPRIMEPAY_SECRET_KEY'),
         'api_url' => env('KPRIMEPAY_API_URL'),
 
-        'name_seeder'=> env('NAME_SEEDER'),
+        'name_seeder' => env('NAME_SEEDER'),
         'sms_api_url' => env('KPRIMEPAY_API_URL_SMS'),
         'sms_token' => env('KPRIMEPAY_SMS_TOKEN'),
         'sms_key' => env('KPRIMEPAY_SMS_KEY'),
+        'whatsapp_number' => env('KPRIMESMS_WHATSAPP_NUMBER'),
+        'webhook_secret' => env('KPRIMESMS_WEBHOOK_SECRET'),
     ],
 
 ];
