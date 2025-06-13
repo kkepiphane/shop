@@ -10,8 +10,6 @@ class ContactController extends Controller
   //Races 
   public function index()
   {
-    // $lists = Couleur::orderBy('created_at', 'desc')->get();
-    // $colors = CouleurResource::collection($lists);
     return view('frontend.contact.index');
   }
 

@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Log;
 class PaymentController extends Controller
 {
     public function handleCallback(Request $request)
-    {
+    { 
         Log::info('Callback reçu:', $request->all());
 
         if (!$request->has(['status', 'kpp_tx_reference', 'transaction_id'])) {

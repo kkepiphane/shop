@@ -95,9 +95,7 @@ class CheckoutController extends Controller
                 'phone' => $request->phone
             ],
         ];
-        //Log::info($paymentData);
-
-        // Initialisation du paiement
+       
         $response = Http::withHeaders([
             'auth_token' => config('services.kprimepay.secret_key'),
             'Content-Type' => 'application/json',
