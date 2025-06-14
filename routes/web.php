@@ -59,8 +59,7 @@ Route::post('/products/{product}/checkout', [OrderController::class, 'checkout']
 
 Route::post('/sms/webhook', [SmsController::class, 'handleWebhook'])->name('sms.webhook');
 // Callback pour KPRIMEPAY
-Route::post('/callback', [PaymentController::class, 'handleCallback'])
-    ->name('payment.callback');
+
 
 // Webhooks pour les statuts SMS/WhatsApp
 Route::post('/sms/webhook', [NotificationController::class, 'handleSmsWebhook'])
