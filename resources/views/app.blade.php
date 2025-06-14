@@ -43,25 +43,6 @@
 		<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 		<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 		<script>
-			// @if(session('success'))
-			// swal({
-			// 	title: "Succès !",
-			// 	text: "{{ session('success') }}",
-			// 	icon: "success",
-			// 	button: "OK",
-			// });
-			// @endif
-
-			// @if(session('error'))
-			// swal({
-			// 	title: "Erreur !",
-			// 	text: "{{ session('error') }}",
-			// 	icon: "error",
-			// 	button: "OK",
-			// });
-			// @endif
-		</script>
-		<script>
 			$(document).ready(function() {
 				// Add to cart
 				$('.add-to-cart').click(function(e) {
@@ -90,7 +71,7 @@
 							// Supprimer l'alerte après 1,5 seconde (1500 millisecondes)
 							setTimeout(function() {
 								$('.alert-top-left').alert('close');
-							}, 1500);
+							}, 5000);
 						}
 					});
 				});

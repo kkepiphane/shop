@@ -185,6 +185,44 @@
 
     function validateForm() {
       let isValid = true;
+
+      // Valider le nom complet
+      const fullname = document.getElementById('fullname').value.trim();
+      if (!fullname) {
+        document.getElementById('fullnameError').style.display = 'block';
+        isValid = false;
+      } else {
+        document.getElementById('fullnameError').style.display = 'none';
+      }
+
+      // Valider l'email
+      const email = document.getElementById('email').value.trim();
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        document.getElementById('emailError').textContent = 'Veuillez entrer une adresse email valide';
+        document.getElementById('emailError').style.display = 'block';
+        isValid = false;
+      } else {
+        document.getElementById('emailError').style.display = 'none';
+      }
+
+      // Valider le pays
+      const country = document.getElementById('country').value;
+      if (!country) {
+        document.getElementById('countryError').style.display = 'block';
+        isValid = false;
+      } else {
+        document.getElementById('countryError').style.display = 'none';
+      }
+
+      // Valider l'adresse
+      const address = document.getElementById('c_address').value.trim();
+      if (!address) {
+        document.getElementById('addressError').style.display = 'block';
+        isValid = false;
+      } else {
+        document.getElementById('addressError').style.display = 'none';
+      }
+
       // Valider le numéro de téléphone
       if (!validatePhoneNumber()) {
         isValid = false;
