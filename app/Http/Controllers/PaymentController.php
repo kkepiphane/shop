@@ -18,7 +18,7 @@ class PaymentController extends Controller
         $data = $request->input('data', []);
 
         if (!$status || !isset($data['kpp_tx_reference'], $data['transaction_id'])) {
-            Log::error('Paramètres manquants dans le callback');
+           // Log::error('Paramètres manquants dans le callback');
             return response()->json(['error' => 'Paramètres invalides'], 400);
         }
 

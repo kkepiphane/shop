@@ -104,8 +104,7 @@ class CheckoutController extends Controller
 
     if ($response->successful() && $response->json('status')) {
       \Cart::clear();
-      //return redirect()->away($response->json('data.checkout_url'));
-      return  back()->with('success', 'iInitialisation du paiement');
+      return redirect()->away($response->json('data.checkout_url'));
     }
 
     // Gestion des erreurs
