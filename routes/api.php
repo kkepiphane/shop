@@ -16,8 +16,10 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::post('/callback', [PaymentController::class, 'handleCallback'])
-  ->name('payment.callback');
+Route::middleware(['auth:sanctum'])->group(function () {
+  Route::post('/callback', [PaymentController::class, 'handleCallback'])
+    ->name('payment.callback');
+});
 
 Route::prefix('whatsapp')->group(function () {
   Route::post('/send-text', [WhatsAppController::class, 'sendTextMessage']);
