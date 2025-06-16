@@ -221,12 +221,8 @@ class WhatsAppController extends Controller
             return response()->json(['status' => 'error', 'message' => 'Unauthorized'], 401);
         }
 
-        // Process the incoming message
         $data = $request->all();
         Log::info('Incoming WhatsApp message', $data);
-
-        // Here you can process the message based on your business logic
-        // For example, check for keywords and respond accordingly
 
         return response()->json(['status' => 'success']);
     }
