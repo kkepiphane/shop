@@ -9,7 +9,7 @@
         <div class="row justify-content-between">
             <div class="col-lg-5">
                 <div class="intro-excerpt">
-                    <h1>Merci pour votre commande!</h1>
+                    <h1>Merci pour votre commande !</h1>
                 </div>
             </div>
         </div>

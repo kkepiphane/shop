@@ -54,7 +54,9 @@ Route::get('/products/{product}', [ProductController::class, 'show'])->name('pro
 Route::get('/checkout', [CheckoutController::class, 'showCheckout'])->name('checkout');
 Route::post('/checkout/process', [CheckoutController::class, 'processPayment'])->name('checkout.process');
 Route::get('/checkout/complete/{order}', [CheckoutController::class, 'paymentComplete'])->name('checkout.complete');
-Route::post('/callback', [CheckoutController::class, 'paymentComplete'])->name('checkout.complete');
+Route::get('/commande/confirmation/{order}', [PaymentController::class, 'showConfirmation'])
+    ->name('order.confirmation')
+    ->middleware('auth');
 Route::post('/products/{product}/checkout', [OrderController::class, 'checkout'])->name('orders.checkout')->middleware('auth', 'verified');
 
 Route::post('/sms/webhook', [SmsController::class, 'handleWebhook'])->name('sms.webhook');

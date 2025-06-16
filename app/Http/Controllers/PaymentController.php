@@ -11,15 +11,18 @@ use Illuminate\Support\Facades\Log;
 class PaymentController extends Controller
 {
     public function handleCallback(Request $request)
-    { 
+    {
         Log::info('Callback reçu:', $request->all());
 
-        if (!$request->has(['status', 'kpp_tx_reference', 'transaction_id'])) {
+        $status = $request->input('status');
+        $data = $request->input('data', []);
+
+        if (!$status || !isset($data['kpp_tx_reference'], $data['transaction_id'])) {
             Log::error('Paramètres manquants dans le callback');
             return response()->json(['error' => 'Paramètres invalides'], 400);
         }
 
-        $metaData = json_decode($request->custom_meta_data ?? '{}', true);
+        $metaData = $data['custom_meta_data'] ?? [];
         $orderId = $metaData['order_id'] ?? null;
         $phone = $metaData['phone'] ?? null;
 
@@ -28,38 +31,36 @@ class PaymentController extends Controller
             return response()->json(['error' => 'Order ID required'], 400);
         }
 
-        // Récupération de la commande
         $order = Order::find($orderId);
         if (!$order) {
             Log::error('Commande introuvable', ['order_id' => $orderId]);
             return response()->json(['error' => 'Order not found'], 404);
         }
 
-        // Enregistrement de la transaction
-        $transaction = Transaction::create([
+        Transaction::create([
             'order_id' => $order->id,
-            'transaction_id' => $request->transaction_id,
-            'kpp_tx_reference' => $request->kpp_tx_reference,
-            'status' => $request->status,
-            'type' => $request->type ?? null,
-            'method' => $request->transaction_method ?? null,
-            'amount' => $request->transaction_amount / 100,
-            'fees' => $request->transaction_fees / 100,
-            'currency' => $request->transaction_currency,
-            'description' => $request->transaction_description,
+            'transaction_id' => $data['transaction_id'],
+            'kpp_tx_reference' => $data['kpp_tx_reference'],
+            'status' => $status,
+            'type' => $request->input('type'),
+            'method' => $data['transaction_method'] ?? null,
+            'amount' => $data['transaction_amount'] / 100,
+            'fees' => $data['transaction_fees'] / 100,
+            'currency' => $data['transaction_currency'],
+            'description' => $data['transaction_description'],
             'payload' => $request->all(),
         ]);
 
-        // Mise à jour du statut de la commande
-        $order->update(['status' => $this->mapStatus($request->status)]);
+        $order->update(['status' => $this->mapStatus($status)]);
 
-        // Envoi des notifications si paiement réussi
-        if ($request->status === 'success') {
+        if ($status === 'success') {
             $this->sendNotifications($order, $request, $phone);
+            $this->showConfirmation($order);
         }
 
         return response()->json(['status' => 'success']);
     }
+
 
     protected function mapStatus($paymentStatus)
     {
@@ -70,35 +71,56 @@ class PaymentController extends Controller
         };
     }
 
-    protected function sendNotifications($order, $paymentData, $phone)
+    public function showConfirmation($orderId)
+    {
+        $transaction = Transaction::with(['order'])->findOrFail($orderId);
+
+        if (auth()->id() !== $transaction->order->user_id) {
+            abort(403);
+        }
+
+        return view('order.confirmation', [
+            'order' => $transaction->order,
+            'paymentData' => (object)[
+                'kpp_tx_reference' => $transaction->kpp_tx_reference,
+                'transaction_amount' => $transaction->order->total_amount
+            ]
+        ]);
+    }
+
+    protected function sendNotifications($order, $request, $phone)
     {
         // Préparation du message
+        $data = $request->input('data', []);
         $deliveryDate = now()->addDays(5)->format('d/m/Y');
         $message = "Bonjour {$order->user->full_name},\n";
         $message .= "Votre paiement de {$order->total_amount} XOF a été confirmé.\n";
-        $message .= "Référence: {$paymentData->kpp_tx_reference}\n";
+        $message .= "Référence: {$data['kpp_tx_reference']}\n";
         $message .= "Livraison prévue le {$deliveryDate}.";
+        $country = $data['customer_details']['country'] ?? 'TG';
 
         // Envoi SMS
-        $this->sendSMS($phone, $message, $paymentData->country);
+        $this->sendSMS($phone, $message, $country);
 
         // Envoi WhatsApp
-        $this->sendWhatsApp($phone, $message, $paymentData->country);
+        $this->sendWhatsApp($phone, $message, $country);
     }
 
-    protected function sendSMS($phone, $message, $country)
+
+    public function sendSMS($phone, $message, $country)
     {
         try {
+
             $response = Http::withHeaders([
-                'token' => config('services.kprimesms.sms_token'),
-                'key' => config('services.kprimesms.sms_key'),
+                'token' => config('services.kprimesms.token_sms'),
+                'key' => config('services.kprimesms.key_sms'),
                 'Content-Type' => 'application/json',
             ])->post(config('services.kprimesms.sms_api_url') . '/sms/push', [
                 'sender' => config('services.kprimesms.sender'),
                 'country' => $country,
                 'phone_number' => preg_replace('/\D/', '', $phone),
                 'message' => $message,
-                'response_url' => route('sms.webhook'),
+                'response_url' => "https://427c-2c0f-2a80-3-208-d109-ee29-1f0a-2cee.ngrok-free.app"
             ]);
 
             Log::info('SMS envoyé', ['response' => $response->body()]);
@@ -107,18 +129,18 @@ class PaymentController extends Controller
         }
     }
 
-    protected function sendWhatsApp($phone, $message, $country)
+    public function sendWhatsApp($phone, $message, $country)
     {
         try {
             $response = Http::withHeaders([
-                'token' => config('services.kprimesms.token'),
-                'key' => config('services.kprimesms.key'),
+                'token' => config('services.kprimesms.token_sms'),
+                'key' => config('services.kprimesms.key_sms'),
                 'Content-Type' => 'application/json',
             ])->post(config('services.kprimesms.sms_api_url') . '/whatsapp/text-message', [
                 'country' => $country,
                 'phone_number' => preg_replace('/\D/', '', $phone),
                 'content' => $message,
-                'response_url' => route('whatsapp.webhook'),
+                'response_url' => "https://427c-2c0f-2a80-3-208-d109-ee29-1f0a-2cee.ngrok-free.app",
             ]);
 
             Log::info('WhatsApp message sent', ['response' => $response->body()]);
