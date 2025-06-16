@@ -12,7 +12,7 @@ class PaymentController extends Controller
 {
     public function handleCallback(Request $request)
     {
-        Log::info('Callback reçu:', $request->all());
+        //Log::info('Callback reçu:', $request->all());
 
         $status = $request->input('status');
         $data = $request->input('data', []);
@@ -27,13 +27,13 @@ class PaymentController extends Controller
         $phone = $metaData['phone'] ?? null;
 
         if (!$orderId) {
-            Log::error('Order ID manquant dans les métadonnées');
+            //Log::error('Order ID manquant dans les métadonnées');
             return response()->json(['error' => 'Order ID required'], 400);
         }
 
         $order = Order::find($orderId);
         if (!$order) {
-            Log::error('Commande introuvable', ['order_id' => $orderId]);
+            //Log::error('Commande introuvable', ['order_id' => $orderId]);
             return response()->json(['error' => 'Order not found'], 404);
         }
 
@@ -44,8 +44,8 @@ class PaymentController extends Controller
             'status' => $status,
             'type' => $request->input('type'),
             'method' => $data['transaction_method'] ?? null,
-            'amount' => $data['transaction_amount'] / 100,
-            'fees' => $data['transaction_fees'] / 100,
+            'amount' => $data['transaction_amount'],
+            'fees' => $data['transaction_fees'],
             'currency' => $data['transaction_currency'],
             'description' => $data['transaction_description'],
             'payload' => $request->all(),
@@ -55,7 +55,7 @@ class PaymentController extends Controller
 
         if ($status === 'success') {
             $this->sendNotifications($order, $request, $phone);
-            $this->showConfirmation($order);
+            $this->showConfirmation($order->id);
         }
 
         return response()->json(['status' => 'success']);
@@ -66,7 +66,7 @@ class PaymentController extends Controller
     {
         return match (strtolower($paymentStatus)) {
             'success' => 'paid',
-            'failed' => 'payment_failed',
+            'failed' => 'unpaid',
             default => 'pending_payment',
         };
     }
@@ -101,9 +101,6 @@ class PaymentController extends Controller
 
         // Envoi SMS
         $this->sendSMS($phone, $message, $country);
-
-        // Envoi WhatsApp
-        $this->sendWhatsApp($phone, $message, $country);
     }
 
 
@@ -123,29 +120,9 @@ class PaymentController extends Controller
                 'response_url' => "https://427c-2c0f-2a80-3-208-d109-ee29-1f0a-2cee.ngrok-free.app"
             ]);
 
-            Log::info('SMS envoyé', ['response' => $response->body()]);
+            //Log::info('SMS envoyé', ['response' => $response->body()]);
         } catch (\Exception $e) {
             Log::error('Erreur envoi SMS', ['error' => $e->getMessage()]);
-        }
-    }
-
-    public function sendWhatsApp($phone, $message, $country)
-    {
-        try {
-            $response = Http::withHeaders([
-                'token' => config('services.kprimesms.token_sms'),
-                'key' => config('services.kprimesms.key_sms'),
-                'Content-Type' => 'application/json',
-            ])->post(config('services.kprimesms.sms_api_url') . '/whatsapp/text-message', [
-                'country' => $country,
-                'phone_number' => preg_replace('/\D/', '', $phone),
-                'content' => $message,
-                'response_url' => "https://427c-2c0f-2a80-3-208-d109-ee29-1f0a-2cee.ngrok-free.app",
-            ]);
-
-            Log::info('WhatsApp message sent', ['response' => $response->body()]);
-        } catch (\Exception $e) {
-            Log::error('WhatsApp send error', ['error' => $e->getMessage()]);
         }
     }
 }

@@ -57,7 +57,7 @@ class WhatsAppController extends Controller
     public function uploadDocument(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'attachment_file' => 'required|file|max:5120', // Max 5GB
+            'attachment_file' => 'required|file|max:5120',
         ]);
 
         if ($validator->fails()) {
@@ -239,13 +239,8 @@ class WhatsAppController extends Controller
     protected function handleApiResponse($response)
     {
         if ($response->successful()) {
-            return $response->json();
+            return $response->json(['status' => 'success'], 200);
         }
-
-        Log::error('API request failed', [
-            'status' => $response->status(),
-            'response' => $response->body()
-        ]);
 
         return response()->json([
             'status' => 'error',
