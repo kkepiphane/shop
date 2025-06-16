@@ -50,7 +50,7 @@ Route::post('/cart/remove', [CartController::class, 'removeFromCart'])->name('ca
 Route::get('/products', [ProductController::class, 'index'])->name('products.index')->middleware('auth', 'verified');
 Route::get('/products/{product}', [ProductController::class, 'show'])->name('products.show')->middleware('auth', 'verified');
 
-Route::middleware(['auth:sanctum', 'admin'])->group(function () {
+Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::get('/checkout', [CheckoutController::class, 'showCheckout'])->name('checkout');
     Route::post('/checkout/process', [CheckoutController::class, 'processPayment'])->name('checkout.process');
