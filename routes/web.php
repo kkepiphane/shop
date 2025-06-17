@@ -7,7 +7,6 @@ use App\Http\Controllers\ContactController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OrderController;
-use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ShopController;
 use App\Http\Controllers\SmsController;
@@ -47,8 +46,8 @@ Route::get('/cart', [CartController::class, 'index'])->name('cart.view');
 Route::post('/cart/update', [CartController::class, 'updateCart'])->name('cart.update');
 Route::post('/cart/remove', [CartController::class, 'removeFromCart'])->name('cart.remove');
 // Produits
-Route::get('/products', [ProductController::class, 'index'])->name('products.index')->middleware('auth', 'verified');
-Route::get('/products/{product}', [ProductController::class, 'show'])->name('products.show')->middleware('auth', 'verified');
+Route::get('/products', [ProductController::class, 'index'])->name('products.index');
+Route::get('/products/{product}', [ProductController::class, 'show'])->name('products.show');
 
 Route::get('/checkout', [CheckoutController::class, 'showCheckout'])->name('checkout');
 Route::post('/checkout/process', [CheckoutController::class, 'processPayment'])->name('checkout.process');
@@ -62,5 +61,3 @@ Route::post('/sms/webhook', [NotificationController::class, 'handleSmsWebhook'])
 
 Route::post('/whatsapp/webhook', [NotificationController::class, 'handleWhatsAppWebhook'])
     ->name('whatsapp.webhook');
-
-

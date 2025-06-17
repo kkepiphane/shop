@@ -59,13 +59,13 @@ class ChairsTableSeeder extends Seeder
     protected function generateRealisticPrice($modelName)
     {
         $basePrices = [
-            'gamer' => 299.99,
-            'ergo' => 349.50,
+            'gamer' => 299.00,
+            'ergo' => 349.00,
             'cuir' => 449.00,
             'design' => 399.00,
-            'bureau' => 199.99,
-            'etudiant' => 89.99,
-            'conference' => 179.50,
+            'bureau' => 199.00,
+            'etudiant' => 89.00,
+            'conference' => 179.00,
             'pliable' => 129.00
         ];
 
