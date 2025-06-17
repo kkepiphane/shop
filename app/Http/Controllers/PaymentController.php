@@ -117,7 +117,7 @@ class PaymentController extends Controller
     }
 
 
-    protected function handleSmsResponse(Request $request)
+    public function handleSmsResponse(Request $request)
     {
         $data = $request->all();
 

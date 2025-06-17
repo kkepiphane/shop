@@ -32,33 +32,26 @@ Route::prefix('whatsapp')->group(function () {
   //Route::post('/whatsapp-callback', [WhatsAppController::class, 'handleIncomingWebhook']);
 });
 
-// Route::get('/whatsapp-callback', function (Request $request) {
-//   $expectedSecret = config('services.kprimesms.webhook_secret');
-
-//   if ($request->query('webhook_secret') === $expectedSecret && $request->query('webhook_type') === 'webhook_register') {
-//     return response('Webhook validated successfully', 200);
-//   }
+Route::post('/whatsapp-text-callback', [WhatsAppController::class, 'handleWhatsappResponse']);
+Route::post('/document-text-callback', [WhatsAppController::class, 'handleDocumentResponse']);
+Route::post('/webhook-register-callback', [WhatsAppController::class, 'handleRegisterWebhookResponse']);
 
 
-//   return response('Unauthorized', 401);
-// });
 
 // Route::match(['get', 'post'], '/whatsapp-callback', function (Request $request) {
-//     $expectedSecret = '@PrimeSoft1234'; // ou config('services.kprimesms.webhook_secret')
 
-//     $secret = $request->input('webhook_secret') ?? $request->query('webhook_secret');
-//     $type = $request->input('webhook_type') ?? $request->query('webhook_type');
+//   $secret = $request->input('webhook_secret') ?? $request->query('webhook_secret');
+//   $type = $request->input('webhook_type') ?? $request->query('webhook_type');
 
-//     Log::info('Webhook callback received', [
-//         'method' => $request->method(),
-//         'secret' => $secret,
-//         'type' => $type,
-//         'data' => $request->all()
-//     ]);
+//   Log::info('Webhook callback received', [
+//     'method' => $request->method(),
+//     'secret' => $secret,
+//     'type' => $type,
+//     'data' => $request->all()
+//   ]);
 
 
-//         return response()->json(['description' => 'Webhook confirmed OK'], 200);
-
+//   return response()->json(['description' => 'Webhook confirmed OK'], 200);
 // });
 
 // routes/api.php

@@ -53,7 +53,23 @@ class WhatsAppController extends Controller
         }
     }
 
-  
+    public function handleWhatsappResponse(Request $request)
+    {
+        $data = $request->all();
+
+        if ($data['status']) {
+            return response()->json([
+                'status' => 'success',
+            ]);
+        } else {
+            return response()->json([
+                'error' => 'Unprocessable request: missing or invalid parameters',
+                'details' => $data
+            ], 422);
+        }
+    }
+
+
     public function uploadDocument(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -86,7 +102,7 @@ class WhatsAppController extends Controller
         }
     }
 
-    
+
     public function sendDocumentMessage(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -119,7 +135,23 @@ class WhatsAppController extends Controller
         }
     }
 
-    
+    public function handleDocumentResponse(Request $request)
+    {
+        $data = $request->all();
+
+        if ($data['status']) {
+            return response()->json([
+                'status' => 'success',
+            ]);
+        } else {
+            return response()->json([
+                'error' => 'Unprocessable request: missing or invalid parameters',
+                'details' => $data
+            ], 422);
+        }
+    }
+
+
     public function registerWebhook(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -150,7 +182,19 @@ class WhatsAppController extends Controller
         }
     }
 
-    
+    public function handleRegisterWebhookResponse(Request $request)
+    {
+        $expectedSecret = config('services.kprimesms.webhook_secret');
+
+        if ($request->query('webhook_secret') === $expectedSecret && $request->query('webhook_type') === 'webhook_register') {
+            return response('Webhook validated successfully', 200);
+        }
+
+
+        return response('Unauthorized', 401);
+    }
+
+
     public function testWebhook(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -179,7 +223,7 @@ class WhatsAppController extends Controller
         }
     }
 
-    
+
     public function createKeyword(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -209,7 +253,7 @@ class WhatsAppController extends Controller
         }
     }
 
-    
+
     public function handleIncomingWebhook(Request $request)
     {
         // Verify the webhook secret
@@ -227,7 +271,7 @@ class WhatsAppController extends Controller
         return response()->json(['status' => 'success']);
     }
 
-    
+
     protected function verifyWebhook($secret, $type)
     {
         $validSecret = config('services.kprimesms.webhook_secret');
@@ -248,5 +292,4 @@ class WhatsAppController extends Controller
             'api_response' => $response->body()
         ], $response->status());
     }
-
 }
