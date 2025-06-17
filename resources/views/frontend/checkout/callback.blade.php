@@ -1,6 +1,4 @@
-@extends('layouts.app')
-
-@section('title', 'Confirmation de commande')
+@extends('app')
 
 @section('content')
 <style>
@@ -116,9 +114,6 @@
                     </div>
 
                     <div class="d-flex justify-content-between mt-4">
-                        <a href="{{ route('orders.show', $order->id) }}" class="btn btn-outline-primary">
-                            <i class="bi bi-file-text"></i> Voir le détail de la commande
-                        </a>
                         <a href="{{ route('home') }}" class="btn btn-primary">
                             <i class="bi bi-house"></i> Retour à l'accueil
                         </a>

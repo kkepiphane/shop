@@ -50,22 +50,17 @@ Route::post('/cart/remove', [CartController::class, 'removeFromCart'])->name('ca
 Route::get('/products', [ProductController::class, 'index'])->name('products.index')->middleware('auth', 'verified');
 Route::get('/products/{product}', [ProductController::class, 'show'])->name('products.show')->middleware('auth', 'verified');
 
-
 Route::get('/checkout', [CheckoutController::class, 'showCheckout'])->name('checkout');
 Route::post('/checkout/process', [CheckoutController::class, 'processPayment'])->name('checkout.process');
 Route::get('/checkout/complete/{order}', [CheckoutController::class, 'paymentComplete'])->name('checkout.complete');
-Route::get('/commande/confirmation/{order}', [PaymentController::class, 'showConfirmation'])
-    ->name('order.confirmation')
-    ->middleware('auth');
 Route::post('/products/{product}/checkout', [OrderController::class, 'checkout'])->name('orders.checkout')->middleware('auth', 'verified');
 
 Route::post('/sms/webhook', [SmsController::class, 'handleWebhook'])->name('sms.webhook');
-// Callback pour KPRIMEPAY
 
-
-// Webhooks pour les statuts SMS/WhatsApp
 Route::post('/sms/webhook', [NotificationController::class, 'handleSmsWebhook'])
     ->name('sms.webhook');
 
 Route::post('/whatsapp/webhook', [NotificationController::class, 'handleWhatsAppWebhook'])
     ->name('whatsapp.webhook');
+
+

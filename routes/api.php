@@ -18,8 +18,9 @@ use Illuminate\Support\Facades\Route;
 */
 
 
-Route::post('/callback', [PaymentController::class, 'handleCallback'])
-  ->name('payment.callback');
+Route::post('/callback', [PaymentController::class, 'handleCallback']);
+Route::post('/sms-callback', [PaymentController::class, 'handleSmsResponse']);
+Route::get('/commande/confirmation/{order}', [PaymentController::class, 'showConfirmation'])->name('order.confirmation');
 
 Route::prefix('whatsapp')->group(function () {
   Route::post('/send-text', [WhatsAppController::class, 'sendTextMessage']);
@@ -61,17 +62,17 @@ Route::prefix('whatsapp')->group(function () {
 // });
 
 // routes/api.php
-Route::post('/whatsapp-callback', function (Request $request) {
-  $data = $request->all();
-  Log::info('Message reçu:', $data);
+// Route::post('/whatsapp-callback', function (Request $request) {
+//   $data = $request->all();
+//   Log::info('Message reçu:', $data);
 
-  // Vérifier si c'est un keyword
-  if (str_starts_with($data['message'], 'TEST123')) {
-    // Répondre automatiquement
-    return response()->json([
-      'reply' => "Vous avez utilisé le mot-clé TEST123. Message reçu : " . $data['message']
-    ], 200);
-  }
+//   // Vérifier si c'est un keyword
+//   if (str_starts_with(haystack: $data['message'], 'TEST123')) {
+//     // Répondre automatiquement
+//     return response()->json([
+//       'reply' => "Vous avez utilisé le mot-clé TEST123. Message reçu : " . $data['message']
+//     ], 200);
+//   }
 
-  return response()->json(['status' => 'ignored']);
-});
+//   return response()->json(['status' => 'ignored']);
+// });

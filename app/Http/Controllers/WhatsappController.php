@@ -248,4 +248,5 @@ class WhatsAppController extends Controller
             'api_response' => $response->body()
         ], $response->status());
     }
+
 }

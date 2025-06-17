@@ -12,13 +12,12 @@ class PaymentController extends Controller
 {
     public function handleCallback(Request $request)
     {
-        //Log::info('Callback reçu:', $request->all());
 
         $status = $request->input('status');
         $data = $request->input('data', []);
 
         if (!$status || !isset($data['kpp_tx_reference'], $data['transaction_id'])) {
-           // Log::error('Paramètres manquants dans le callback');
+            // Log::error('Paramètres manquants dans le callback');
             return response()->json(['error' => 'Paramètres invalides'], 400);
         }
 
@@ -27,13 +26,11 @@ class PaymentController extends Controller
         $phone = $metaData['phone'] ?? null;
 
         if (!$orderId) {
-            //Log::error('Order ID manquant dans les métadonnées');
             return response()->json(['error' => 'Order ID required'], 400);
         }
 
         $order = Order::find($orderId);
         if (!$order) {
-            //Log::error('Commande introuvable', ['order_id' => $orderId]);
             return response()->json(['error' => 'Order not found'], 404);
         }
 
@@ -55,10 +52,10 @@ class PaymentController extends Controller
 
         if ($status === 'success') {
             $this->sendNotifications($order, $request, $phone);
-            $this->showConfirmation($order->id);
+            return response()->json(['status' => 'success']);
+        } else {
+            return response()->json(['status' => 'failed']);
         }
-
-        return response()->json(['status' => 'success']);
     }
 
 
@@ -73,19 +70,12 @@ class PaymentController extends Controller
 
     public function showConfirmation($orderId)
     {
-        $transaction = Transaction::with(['order'])->findOrFail($orderId);
+        $order = Order::with(relations: ['user', 'transaction'])->findOrFail($orderId);
 
-        if (auth()->id() !== $transaction->order->user_id) {
-            abort(403);
-        }
+        $kpp_tx_reference  = $order->transaction->kpp_tx_reference;
+        $transaction_amount = $order->total_amount;
 
-        return view('order.confirmation', [
-            'order' => $transaction->order,
-            'paymentData' => (object)[
-                'kpp_tx_reference' => $transaction->kpp_tx_reference,
-                'transaction_amount' => $transaction->order->total_amount
-            ]
-        ]);
+        return view('frontend.checkout.callback', compact('order', 'kpp_tx_reference', 'transaction_amount'));
     }
 
     protected function sendNotifications($order, $request, $phone)
@@ -99,7 +89,7 @@ class PaymentController extends Controller
         $message .= "Livraison prévue le {$deliveryDate}.";
         $country = $data['customer_details']['country'] ?? 'TG';
 
-        // Envoi SMS
+        // Envoie de sms
         $this->sendSMS($phone, $message, $country);
     }
 
@@ -108,7 +98,7 @@ class PaymentController extends Controller
     {
         try {
 
-            $response = Http::withHeaders([
+            Http::withHeaders([
                 'token' => config('services.kprimesms.token_sms'),
                 'key' => config('services.kprimesms.key_sms'),
                 'Content-Type' => 'application/json',
@@ -117,12 +107,29 @@ class PaymentController extends Controller
                 'country' => $country,
                 'phone_number' => preg_replace('/\D/', '', $phone),
                 'message' => $message,
-                'response_url' => "https://427c-2c0f-2a80-3-208-d109-ee29-1f0a-2cee.ngrok-free.app"
+                'response_url' => "https://52c6-2c0f-2a80-3-208-a4f6-ea9d-9d48-a2e8.ngrok-free.app/api/sms-callback"
             ]);
 
             //Log::info('SMS envoyé', ['response' => $response->body()]);
         } catch (\Exception $e) {
             Log::error('Erreur envoi SMS', ['error' => $e->getMessage()]);
+        }
+    }
+
+
+    protected function handleSmsResponse(Request $request)
+    {
+        $data = $request->all();
+
+        if ($data['status']) {
+            return response()->json([
+                'status' => 'success',
+            ], 200);
+        } else {
+            return response()->json([
+                'error' => 'Unprocessable request: missing or invalid parameters',
+                'details' => $data
+            ], 422);
         }
     }
 }
