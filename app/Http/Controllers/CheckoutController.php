@@ -44,7 +44,7 @@ class CheckoutController extends Controller
 
   public function processPayment(Request $request)
   {
-    $validated = $request->validate([
+    $request->validate([
       'country' => 'required|string|size:2',
       'c_address' => 'required|string',
       'phone' => 'required|string',
@@ -117,17 +117,4 @@ class CheckoutController extends Controller
 
     return view('frontend.checkout.thankyou', compact('order'));
   }
-
-  // private function sendVerificationEmail(User $user)
-  // {
-  //   $token = \Str::random(60);
-
-  //   EmailVerificationToken::create([
-  //     'user_id' => $user->id,
-  //     'token' => $token,
-  //     'expires_at' => now()->addHours(24)
-  //   ]);
-
-  //   Mail::to($user->email)->send(new EmailVerificationMail($user, $token));
-  // }
 }

@@ -21,7 +21,7 @@ class WhatsAppController extends Controller
         ];
     }
 
-
+    //pour le test
     public function sendTextMessage(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -292,6 +292,7 @@ class WhatsAppController extends Controller
         ], $response->status());
     }
 
+    //Pour la production
     public function handleIncomingMessage(Request $request)
     {
         $data = $request->all();

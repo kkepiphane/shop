@@ -9,7 +9,6 @@ use Illuminate\Http\Request;
 class HomeController extends Controller
 {
 
-  //Races 
   public function index()
   {
     $listsProducts = Product::orderBy('created_at', 'desc')->limit(3)->get();

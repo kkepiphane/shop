@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\SmsController;
 use App\Http\Controllers\WhatsAppController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -19,7 +20,7 @@ use Illuminate\Support\Facades\Route;
 
 
 Route::post('/callback', [PaymentController::class, 'handleCallback']);
-Route::post('/sms-callback', [PaymentController::class, 'handleSmsResponse']);
+Route::post('/sms-callback', [SmsController::class, 'handleSmsResponse']);
 Route::get('/commande/confirmation/{order}', [PaymentController::class, 'showConfirmation'])->name('order.confirmation');
 
 Route::prefix('whatsapp')->group(function () {

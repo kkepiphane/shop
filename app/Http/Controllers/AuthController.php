@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\Hash;
 use App\Models\EmailVerificationToken;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\EmailVerificationMail;
-use App\Rules\PhoneNumber;
 use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
@@ -65,7 +64,6 @@ class AuthController extends Controller
       'email' => 'required|string|email|max:255|unique:users',
       'password' => 'required|string|min:8',
       'country' => 'required|string|size:2',
-      //'phone_prefix' => 'required|string',
       'phone_number' => 'required|string|unique:users',
       'redirect_to' => 'nullable|url'
     ], [

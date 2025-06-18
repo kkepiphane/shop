@@ -10,6 +10,12 @@ use Illuminate\Support\Facades\Log;
 
 class PaymentController extends Controller
 {
+    protected $smsController;
+
+    public function __construct()
+    {
+        $this->smsController = new SmsController();
+    }
     public function handleCallback(Request $request)
     {
 
@@ -17,7 +23,6 @@ class PaymentController extends Controller
         $data = $request->input('data', []);
 
         if (!$status || !isset($data['kpp_tx_reference'], $data['transaction_id'])) {
-            // Log::error('Paramètres manquants dans le callback');
             return response()->json(['error' => 'Paramètres invalides'], 400);
         }
 
@@ -90,46 +95,6 @@ class PaymentController extends Controller
         $country = $data['customer_details']['country'] ?? 'TG';
 
         // Envoie de sms
-        $this->sendSMS($phone, $message, $country);
-    }
-
-
-    public function sendSMS($phone, $message, $country)
-    {
-        try {
-
-            Http::withHeaders([
-                'token' => config('services.kprimesms.token_sms'),
-                'key' => config('services.kprimesms.key_sms'),
-                'Content-Type' => 'application/json',
-            ])->post(config('services.kprimesms.sms_api_url') . '/sms/push', [
-                'sender' => config('services.kprimesms.sender'),
-                'country' => $country,
-                'phone_number' => preg_replace('/\D/', '', $phone),
-                'message' => $message,
-                'response_url' => "https://52c6-2c0f-2a80-3-208-a4f6-ea9d-9d48-a2e8.ngrok-free.app/api/sms-callback"
-            ]);
-
-            //Log::info('SMS envoyé', ['response' => $response->body()]);
-        } catch (\Exception $e) {
-            Log::error('Erreur envoi SMS', ['error' => $e->getMessage()]);
-        }
-    }
-
-
-    public function handleSmsResponse(Request $request)
-    {
-        $data = $request->all();
-
-        if ($data['status']) {
-            return response()->json([
-                'status' => 'success',
-            ], 200);
-        } else {
-            return response()->json([
-                'error' => 'Unprocessable request: missing or invalid parameters',
-                'details' => $data
-            ], 422);
-        }
+        $this->smsController->sendSMS($phone, $message, $country);
     }
 }
