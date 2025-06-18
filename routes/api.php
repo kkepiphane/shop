@@ -29,12 +29,12 @@ Route::prefix('whatsapp')->group(function () {
   Route::post('/register-webhook', [WhatsAppController::class, 'registerWebhook']);
   Route::post('/test-webhook', [WhatsAppController::class, 'testWebhook']);
   Route::post('/create-keyword', [WhatsAppController::class, 'createKeyword']);
-  //Route::post('/whatsapp-callback', [WhatsAppController::class, 'handleIncomingWebhook']);
 });
 
 Route::post('/whatsapp-text-callback', [WhatsAppController::class, 'handleWhatsappResponse']);
 Route::post('/document-text-callback', [WhatsAppController::class, 'handleDocumentResponse']);
 Route::post('/webhook-register-callback', [WhatsAppController::class, 'handleRegisterWebhookResponse']);
+Route::post('/whatsapp-callback', [WhatsAppController::class, 'handleIncomingMessage']);
 
 
 

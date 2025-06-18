@@ -245,7 +245,6 @@ class WhatsAppController extends Controller
 
             return $this->handleApiResponse($response);
         } catch (\Exception $e) {
-            Log::error('WhatsApp keyword creation error', ['error' => $e->getMessage()]);
             return response()->json([
                 'status' => 'error',
                 'message' => 'Failed to create keyword'
@@ -291,5 +290,57 @@ class WhatsAppController extends Controller
             'message' => 'API request failed',
             'api_response' => $response->body()
         ], $response->status());
+    }
+
+    public function handleIncomingMessage(Request $request)
+    {
+        $data = $request->all();
+
+        if (!isset($data['entry']['from']['phone_number']) || !isset($data['entry']['messages'][0]['text'])) {
+            Log::error('Format de message WhatsApp invalide', ['data' => $data]);
+            return response()->json(['status' => 'error', 'message' => 'Format de message invalide'], 400);
+        }
+
+        $phoneNumber = $data['entry']['from']['phone_number'];
+        $incomingMessage = $data['entry']['messages'][0]['text'];
+
+
+        // Création de la réponse
+        $replyMessage = "Merci pour votre message \"$incomingMessage\". Nous avons bien reçu votre demande.";
+
+        // Envoi de la réponse
+        return $this->sendReply($phoneNumber, $replyMessage);
+    }
+
+    public function sendReply($phoneNumber, $messageContent)
+    {
+        $cleanPhoneNumber = str_replace('228', '', $phoneNumber);
+
+        $payload = [
+            'country' => 'TG',
+            'phone_number' => $cleanPhoneNumber,
+            'content' => $messageContent,
+            'response_url' => 'https://9ddc-2c0f-2a80-3-208-9d1-d209-4c20-aaaa.ngrok-free.app/api/whatsapp-callback'
+        ];
+
+        try {
+            $response = Http::withHeaders(array_merge($this->headers, [
+                'Content-Type' => 'application/json',
+            ]))->post("{$this->baseUrl}/whatsapp/text-message", $payload);
+
+            // Journalisation de la réponse
+            Log::info('Réponse WhatsApp envoyée', [
+                'payload' => $payload,
+                'response' => $response->json()
+            ]);
+
+            return $response->json();
+        } catch (\Exception $e) {
+            Log::error('Erreur lors de l\'envoi de la réponse WhatsApp', [
+                'error' => $e->getMessage(),
+                'payload' => $payload
+            ]);
+            return ['status' => 'error', 'message' => $e->getMessage()];
+        }
     }
 }
