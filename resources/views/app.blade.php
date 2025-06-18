@@ -88,6 +88,7 @@
 					let input = $(this).siblings('.quantity-amount');
 					let value = parseInt(input.val()) - 1;
 					if (value < 1) value = 1;
+
 					input.val(value);
 					updateCartItem($(this).closest('tr').find('form'));
 				});
@@ -104,8 +105,22 @@
 							product_id: productId,
 							quantity: quantity
 						},
-						success: function() {
-							location.reload();
+						success: function(response) {
+							location.reload()
+							// $('.cart-count-badge').text(response.cart_count);
+							// const alertHTML = `
+							// 		<div class="alert alert-success alert-dismissible fade show alert-top-left" role="alert">
+							// 			<strong>Succès! </strong> Produit Modifier au panier!
+							// 			<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+							// 		</div>
+							// 	`;
+
+							// // Ajouter l'alerte au corps du document
+							// $('body').append(alertHTML);
+
+							// setTimeout(function() {
+							// 	$('.alert-top-left').alert('close');
+							// }, 5000);
 						}
 					});
 				}

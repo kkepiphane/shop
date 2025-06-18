@@ -36,6 +36,12 @@ class CartController extends Controller
 
     public function updateCart(Request $request)
     {
+        if ($request->quantity < 1) {
+            return response()->json([
+                'success' => true,
+                'cart_count' => \Cart::getTotalQuantity()
+            ]);
+        }
         \Cart::update($request->product_id, [
             'quantity' => [
                 'relative' => false,
@@ -43,7 +49,11 @@ class CartController extends Controller
             ],
         ]);
 
-        return redirect()->back()->with('success', 'Cart updated successfully');
+        // return redirect()->back()->with('success', 'Cart updated successfully');
+        return response()->json([
+            'success' => true,
+            'cart_count' => \Cart::getTotalQuantity()
+        ]);
     }
 
     public function removeFromCart(Request $request)

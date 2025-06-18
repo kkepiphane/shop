@@ -55,9 +55,4 @@ Route::get('/checkout/complete/{order}', [CheckoutController::class, 'paymentCom
 Route::post('/products/{product}/checkout', [OrderController::class, 'checkout'])->name('orders.checkout')->middleware('auth', 'verified');
 
 Route::post('/sms/webhook', [SmsController::class, 'handleWebhook'])->name('sms.webhook');
-
-Route::post('/sms/webhook', [NotificationController::class, 'handleSmsWebhook'])
-    ->name('sms.webhook');
-
-Route::post('/whatsapp/webhook', [NotificationController::class, 'handleWhatsAppWebhook'])
-    ->name('whatsapp.webhook');
+    
