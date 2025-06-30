@@ -7,9 +7,13 @@
 		<div class="row justify-content-between">
 			<div class="col-lg-5">
 				<div class="intro-excerpt">
-					<h1>Modern Interior <span clsas="d-block">Design Studio</span></h1>
-					<p class="mb-4">Donec vitae odio quis nisl dapibus malesuada. Nullam ac aliquet velit. Aliquam vulputate velit imperdiet dolor tempor tristique.</p>
-					<p><a href="" class="btn btn-secondary me-2">Shop Now</a><a href="#" class="btn btn-white-outline">Explore</a></p>
+					<h1>Modern Interior <span class="d-block">Design Studio</span></h1>
+					<p class="mb-4">Découvrez notre collection de sièges modernes alliant confort, style et fonctionnalité pour sublimer tous vos espaces.</p>
+					<p>
+						<a href="{{route('shop')}}" class="btn btn-secondary me-2">Acheter maintenant</a>
+						<a href="#" class="btn btn-white-outline">Explore</a>
+					</p>
+
 				</div>
 			</div>
 			<div class="col-lg-7">
@@ -29,9 +33,9 @@
 
 			<!-- Start Column 1 -->
 			<div class="col-md-12 col-lg-3 mb-5 mb-lg-0">
-				<h2 class="mb-4 section-title">Crafted with excellent material.</h2>
-				<p class="mb-4">Donec vitae odio quis nisl dapibus malesuada. Nullam ac aliquet velit. Aliquam vulputate velit imperdiet dolor tempor tristique. </p>
-				<p><a href="shop.html" class="btn">Explore</a></p>
+				<h2 class="mb-4 section-title">Fabriqué avec d'excellents matériaux.</h2>
+				<p class="mb-4">Offrez à votre intérieur le confort qu’il mérite grâce à notre sélection de sièges design et ergonomiques. </p>
+				<p><a href="shop.html" class="btn">Explorer</a></p>
 			</div>
 			<!-- End Column 1 -->
 			<!-- End Column 4 -->
@@ -58,11 +62,9 @@
 	<div class="container">
 		<div class="row justify-content-between">
 			<div class="col-lg-6">
-				<h2 class="section-title">Why Choose Us</h2>
-				<p>Donec vitae odio quis nisl dapibus malesuada. Nullam ac aliquet velit. Aliquam vulputate velit imperdiet dolor tempor tristique.</p>
-
+				<h2 class="section-title">Pourquoi nous</h2>
+				<p>Nous vous offrons des sièges de qualité supérieure, au design soigné et au confort inégalé, livrés rapidement et à des prix compétitifs.</p>
 				<div class="row my-5">
-
 					<div class="col-6 col-md-6">
 						<div class="feature">
 							<div class="icon">
@@ -129,17 +131,18 @@
 				</div>
 			</div>
 			<div class="col-lg-5 ps-lg-5">
-				<h2 class="section-title mb-4">We Help You Make Modern Interior Design</h2>
-				<p>Donec facilisis quam ut purus rutrum lobortis. Donec vitae odio quis nisl dapibus malesuada. Nullam ac aliquet velit. Aliquam vulputate velit imperdiet dolor tempor tristique. Pellentesque habitant morbi tristique senectus et netus et malesuada</p>
+				<h2 class="section-title mb-4">Nous vous aidons à créer un intérieur moderne</h2>
+				<p>Nous vous accompagnons dans l’aménagement de vos espaces avec des sièges modernes, élégants et confortables. Alliez esthétique et fonctionnalité pour transformer chaque pièce en un lieu unique.</p>
 
 				<ul class="list-unstyled custom-list my-4">
-					<li>Donec vitae odio quis nisl dapibus malesuada</li>
-					<li>Donec vitae odio quis nisl dapibus malesuada</li>
-					<li>Donec vitae odio quis nisl dapibus malesuada</li>
-					<li>Donec vitae odio quis nisl dapibus malesuada</li>
+					<li>Confort et design pour tous vos espaces</li>
+					<li>Matériaux de qualité et durables</li>
+					<li>Livraison rapide et service client dédié</li>
+					<li>Styles variés pour s’adapter à votre décoration</li>
 				</ul>
-				<p><a herf="#" class="btn">Explore</a></p>
+				<p><a href="#" class="btn">Explorer</a></p>
 			</div>
+
 		</div>
 	</div>
 </div>

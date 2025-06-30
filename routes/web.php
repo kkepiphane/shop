@@ -5,6 +5,7 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\NewsletterController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
@@ -55,4 +56,9 @@ Route::get('/checkout/complete/{order}', [CheckoutController::class, 'paymentCom
 Route::post('/products/{product}/checkout', [OrderController::class, 'checkout'])->name('orders.checkout')->middleware('auth', 'verified');
 
 Route::post('/sms/webhook', [SmsController::class, 'handleWebhook'])->name('sms.webhook');
-    
+Route::post('/newsletter/subscribe', [NewsletterController::class, 'subscribe'])->name('newsletter.subscribe');
+Route::get('/newsletter/unsubscribe/{email}', [NewsletterController::class, 'unsubscribe'])
+    ->name('newsletter.unsubscribe');
+
+Route::post('/newsletter/unsubscribe', [NewsletterController::class, 'processUnsubscribe'])
+    ->name('newsletter.process-unsubscribe');
